@@ -1,0 +1,14 @@
+Assume xyz is company name and that the script is invoked as python
+b1td-poc-setup -n companyname -a pub.lic.ip.add/32
+ 
+- Configure a pass and block list with name of xyz-pass, xyz-block one bogus
+entry in each. 
+- Create a content filter with the Risk/Fraud category and
+information/communication 
+- Create an app filter with the Personal Storage
+category 
+- Create an external network with address specified in command line
+- Create a policy with xyz and all of the above, plus a list of default feeds. 
+
+If you add two, I can modify the script and lengthen the list to include the
+complete set and actions that I recommend
