@@ -11,7 +11,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20210906
+ Date Last Updated: 20220106
 
  Todo:
 
@@ -42,12 +42,13 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
 import logging
 import os
+import shutil
 import sys
 import json
 import bloxone
@@ -170,12 +171,15 @@ def read_demo_ini(ini_filename):
 
     '''
     # Local Variables
+    section = 'B1_POV'
     cfg = configparser.ConfigParser()
     config = {}
-    ini_keys = [ 'b1inifile', 'owner', 'location', 'customer', 'postfix', 
-                'tld', 'dns_view', 'dns_domain', 'nsg', 'no_of_records', 
-                'ip_space', 'base_net', 'no_of_networks', 'no_of_ips', 
-                'container_cidr', 'cidr', 'net_comments']
+    ini_keys = [ 'b1inifile', 'owner', 'location', 'customer', 'prefix',
+                 'postfix', 'allow_list', 'deny_list', 'policy', 'ext_net',
+                 'ext_cidr', 'ext_net_name', 'tld', 'dns_view', 'dns_domain', 
+                 'nsg', 'no_of_records', 'ip_space', 'base_net', 
+                 'no_of_networks', 'no_of_ips', 'container_cidr', 'cidr', 
+                 'net_comments' ]
 
     # Attempt to read api_key from ini file
     try:
@@ -184,17 +188,18 @@ def read_demo_ini(ini_filename):
         logging.error(err)
 
     # Look for demo section
-    if 'B1DDI_Demo' in cfg:
+    if section in cfg:
+        config['filename'] = ini_filename
         for key in ini_keys:
             # Check for key in BloxOne section
-            if key in cfg['B1DDI_Demo']:
-                config[key] = cfg['B1DDI_Demo'][key].strip("'\"")
-                logging.debug('Key {} found in {}: {}'.format(key, ini_filename, config[key]))
+            if key in cfg[section]:
+                config[key] = cfg[section][key].strip("'\"")
+                logging.debug(f'Key {key} found in {ini_filename}: {config[key]}')
             else:
-                logging.warning('Key {} not found in B1DDI_demo section.'.format(key))
+                logging.warning(f'Key {key} not found in {section} section.')
                 config[key] = ''
     else:
-        logging.warning('No B1DDI_demo Section in config file: {}'.format(ini_filename))
+        logging.warning(f'No {section} Section in config file: {ini_filename}')
 
     return config
 
@@ -667,8 +672,6 @@ def add_records(b1ddi, config):
     else:
         log.error("--- Request for id of view {} failed"
                   .format(config['dns_view']))
-        log.debug("Return code: {}".format(response.status_code))
-        log.debug("Return body: {}".format(response.text))
 
     return status
 
@@ -840,11 +843,380 @@ def check_config(config):
     elif subnet > 29:
         log.error("Subnet CIDR should be /29 or shorter: {}".format(subnet))
         config_ok = False
-    elif  not config['no_of_ips']:
+    elif not config['no_of_ips']:
         log.error("Key: no_of_ips not declared")
         config_ok = False
 
     return config_ok
+
+
+def b1ddi_automation_demo(b1ini, config={}, remove=False):
+    '''
+    '''
+    status = 0
+    log.info("====== B1DDI Automation Demo Version {} ======"
+            .format(__version__))
+
+
+    # Instatiate bloxone 
+    b1ddi = bloxone.b1ddi(b1ini)
+
+    if not remove:
+        log.info("Checking config...")
+        if check_config(config):
+            log.info("Config checked out proceeding...")
+            log.info("------ Creating Demo Data ------")
+            start_timer = time.perf_counter()
+            status = create_demo(b1ddi, config)
+            end_timer = time.perf_counter() - start_timer
+            log.info("---------------------------------------------------")
+            log.info(f'Demo data created in {end_timer:0.2f}S')
+            log.info("Please remember to clean up when you have finished:")
+            command = '$ ' + ' '.join(sys.argv) + " --remove"
+            log.info("{}".format(command)) 
+        else:
+            log.error("Config {} contains errors".format(config.get('filename')))
+            status = 3
+    elif remove:
+        log.info("------ Cleaning Up Demo Data ------")
+        start_timer = time.perf_counter()
+        status = clean_up(b1ddi, config)
+        end_timer = time.perf_counter() - start_timer
+        log.info("---------------------------------------------------")
+        log.info(f'Demo data removed in {end_timer:0.2f}S')
+    else:
+        log.error("Script Error - something seriously wrong")
+        status = 99
+
+    return status
+
+
+def check_org(b1ini):
+    '''
+    Check whether the org is an Infoblox org
+
+    Parameters:
+        b1ini (str): Name of inifile for bloxone module
+    
+    Returns:
+        bool: True if Org/Tenant is an Infoblox Org
+    '''
+    infoblox_org = False
+    b1p = bloxone.b1platform(b1ini)
+    if 'infoblox' in b1p.get_current_tenant().casefold():
+        infoblox_org = True
+
+    return infoblox_org
+
+
+def create_network_list(b1tdc, config={}):
+    '''
+    Create External Network
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+
+    '''
+    net_id = ''
+    network = f"{config.get('ext_net')}/{config.get('ext_cidr')}"
+    net_name = config.get('ext_net_name') 
+    
+    if not b1tdc.get_id('/network_lists', key="name", value=net_name):
+        log.info("---- Create Network List ----")
+        # tag_body = create_tag_body(config)
+        body = { "description": "Network list",
+                 "items": [ network ], 
+                 "name": net_name }
+        log.debug("Body:{}".format(body))
+
+        log.info(f'Creating Network List {net_name}')
+        response = b1tdc.create('/network_lists', body=json.dumps(body))
+        if response.status_code in b1tdc.return_codes_ok:
+            log.info(f'+++ Network List {net_name} created')
+            net_id = response.json()['results']['id']
+        else:
+            log.warning(f'--- Network List {net_name} not created')
+            log.debug(f'Return code: {response.status_code}')
+            log.warning(f'Return body: {response.text}')
+            net_id = None
+    else:
+        log.warning(f'Network List {net_name} already exists')
+        net_id = None
+
+    return net_id
+
+
+def delete_network_list(b1tdc, config={}):
+    '''
+    Delete External Network
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+    
+    Returns:
+        bool: True on success
+    '''
+    status = False
+    net_name = config.get('ext_net_name')
+    if net_name:
+        id = b1tdc.get_id('/network_lists', key="name", value=net_name)
+        if id:
+            log.info(f'Network list {net_name} found.')
+            body = { 'ids': [ str(id) ] }
+            log.debug("Body:{}".format(body))
+            response = b1tdc.delete('/network_lists', body=json.dumps(body))
+            if response.status_code in b1tdc.return_codes_ok:
+                log.info(f'+++ Network list {net_name} deleted.')
+                status = True
+            else:
+                log.info(f'--- Failed to delete Network list {net_name}.')
+                log.debug(f'Return code: {response.status_code}')
+                log.debug(f'Return body: {response.text}')
+        else:
+            log.info(f'Network list {net_name} not found.')
+    else:
+        log.info('No network name provided, no actions taken.')
+
+    return status
+
+
+def create_custom_lists(b1tdc, config={}):
+    '''
+    Create allow and deny custom lists
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+
+    Returns:
+        dict with ids of allow_list and deny_list
+    '''
+    cust_lists = {}
+
+    allow_list = config.get('allow_list')
+    deny_list = config.get('deny_list')
+
+    # Create Allow List
+    if not b1tdc.get_id('/named_list', key="name", value=allow_list):
+        log.info("---- Create Allow List ----")
+        body = { "name": allow_list,
+                    "type": "custom_list",
+                    "confidence_level": "HIGH",
+                    "items": [ "www.infoblox.com" ] }
+        log.debug("Body:{}".format(body))
+
+        log.info(f'Creating Allow List {allow_list}')
+        response = b1tdc.create('/named_lists', body=json.dumps(body))
+        if response.status_code in b1tdc.return_codes_ok:
+            log.info(f'+++ Allow List {allow_list} created')
+            cust_lists['allow_list'] = response.json()['results']['id']
+        else:
+            log.warning(f'--- Allow List {allow_list} not created')
+            log.debug(f'Return code: {response.status_code}')
+            log.warning(f'Return body: {response.text}')
+            cust_lists['allow_list'] = None
+    else:
+        log.warning(f'Allow list {allow_list} already exists')
+        cust_lists['allow_list'] = None
+
+    # Create Deny List
+    if not b1tdc.get_id('/named_list', key="name", value=deny_list):
+        log.info("---- Create Deny List ----")
+        body = { "name": deny_list,
+                    "type": "custom_list",
+                    "confidence_level": "HIGH",
+                    "items": [ "blockme.infoblox.com" ] }
+        log.debug("Body:{}".format(body))
+
+        log.info(f'Creating Deny List {deny_list}')
+        response = b1tdc.create('/named_lists', body=json.dumps(body))
+        if response.status_code in b1tdc.return_codes_ok:
+            log.info(f'+++ Deny List {deny_list} created')
+            cust_lists['deny_list'] = response.json()['results']['id']
+        else:
+            log.warning(f'--- Deny List {deny_list} not created')
+            log.debug(f'Return code: {response.status_code}')
+            log.warning(f'Return body: {response.text}')
+            cust_lists['deny_list'] = None
+    else:
+        log.warning(f'Deny list {deny_list} already exists')
+        cust_lists['deny_list'] = None
+
+    return cust_lists
+
+
+def delete_custom_lists(b1tdc, config={}):
+    '''
+    Delete allow and deny custom lists
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+
+    Returns:
+        bool: True on success
+    '''
+    status = False
+    allow_list = config.get('allow_list')
+    deny_list = config.get('deny_list')
+
+    # Have actioned as separate API calls, they could be combined into
+    # single delete action
+
+    # Delete allow_list
+    if allow_list:
+        id = b1tdc.get_id('/named_lists', key="name", value=allow_list)
+        if id:
+            log.info(f'Allow list {allow_list} found.')
+            body = { 'ids': [ str(id) ] }
+            log.debug("Body:{}".format(body))
+            response = b1tdc.delete('/named_lists', body=json.dumps(body))
+            if response.status_code in b1tdc.return_codes_ok:
+                log.info(f'+++ Allow list {allow_list} deleted.')
+                status = True
+            else:
+                log.info(f'--- Failed to delete Allow list {allow_list}.')
+                log.debug(f'Return code: {response.status_code}')
+                log.debug(f'Return body: {response.text}')
+    
+    else:
+        log.info("No allow_list name provided, no action taken.")
+
+    # Delete deny_list
+    if deny_list:
+        id = b1tdc.get_id('/named_lists', key="name", value=deny_list)
+        if id:
+            log.info(f'Deny list {deny_list} found.')
+            body = { 'ids': [ str(id) ] }
+            log.debug("Body:{}".format(body))
+            response = b1tdc.delete('/named_lists', body=json.dumps(body))
+            if response.status_code in b1tdc.return_codes_ok:
+                log.info(f'+++ Deny list {deny_list} deleted.')
+                if status:
+                    status = True
+                else:
+                    status = False
+            else:
+                log.info(f'--- Failed to delete Deny list {deny_list}.')
+                log.debug(f'Return code: {response.status_code}')
+                log.debug(f'Return body: {response.text}')
+    
+    else:
+        log.info("No deny_list name provided, no action taken.")
+
+    return status
+
+
+def create_policy(b1tdc, config={}):
+    '''
+    '''
+    return
+
+
+def delete_policy(b1tdc, config={}):
+    '''
+    '''
+    return
+
+
+def create_content_filter(b1tdc, config={}):
+    '''
+    '''
+    return
+
+
+def delete_content_filter(b1tdc, config={}):
+    '''
+    '''
+    return
+
+
+def create_app_filter(b1tdc, config={}):
+    '''
+    '''
+    return
+
+
+def delete_app_filter(b1tdc, config={}):
+    '''
+    '''
+    return
+
+
+def create_b1td_pov(b1tdc, config):
+    '''
+    '''
+    status = False
+    net_id = ''
+    custom_lists = {}
+
+
+    # Create External Network
+    net_id = create_network_list(b1tdc, config=config)
+    if net_id:
+        # Create allow and deny lists
+        custom_lists = create_custom_lists(b1tdc, config=config)
+        # if len(custom_lists) == 2:
+            # Create content filter
+
+        # Create App filter
+        # Find unassigned DFPs
+        # Create Policy
+
+    return status
+
+
+def b1td_clean_up(b1tdc, config):
+    '''
+    '''
+    status = False
+
+    # Delete External Network
+    status = delete_network_list(b1tdc, config=config)
+    status = delete_custom_lists(b1tdc, config=config)
+
+    return status
+
+
+def b1td_pov(b1ini, config={}, remove=False):
+    '''
+    '''
+    status = True
+    log.info(f"====== B1TD PoV Automation Version {__version__} ======")
+
+    # Instatiate bloxone 
+    b1tdc = bloxone.b1tdc(b1ini)
+
+    if not remove:
+        log.info("Checking config...")
+        if check_config(config):
+            log.info("Config checked out proceeding...")
+            log.info("------ Creating PoV Environment ------")
+            start_timer = time.perf_counter()
+            status = create_b1td_pov(b1tdc, config)
+            end_timer = time.perf_counter() - start_timer
+            log.info("---------------------------------------------------")
+            log.info(f'B1TD PoV environment data created in {end_timer:0.2f}S')
+            log.info("Please remember to clean up when you have finished:")
+            command = '$ ' + ' '.join(sys.argv) + " --remove"
+            log.info(f"{command}")
+        else:
+            log.error(f"Config {config.get('filename')} contains errors")
+            status = 3
+    elif remove:
+        log.info("------ Cleaning Up B1TD PoV Environment ------")
+        start_timer = time.perf_counter()
+        status = b1td_clean_up(b1tdc, config)
+        end_timer = time.perf_counter() - start_timer
+        log.info("---------------------------------------------------")
+        log.info(f'B1TD Environment removed in {end_timer:0.2f}S')
+    else:
+        log.error("Script Error - something seriously wrong")
+
+    return status
+
 
 def main():
     '''
@@ -859,6 +1231,7 @@ def main():
 
     # Read inifile
     config = read_demo_ini(inifile)
+
     if config['b1inifile']:
         b1inifile = config['b1inifile']
     else:
@@ -882,39 +1255,15 @@ def main():
         else:
             log.setLevel(logging.INFO)
             setup_logging(debug=False, usefile=usefile)
-
-        log.info("====== B1DDI Automation Demo Version {} ======"
-                .format(__version__))
-
-        # Instatiate bloxone 
-        b1ddi = bloxone.b1ddi(b1inifile)
-
-        if not args.remove:
-            log.info("Checking config...")
-            if check_config(config):
-                log.info("Config checked out proceeding...")
-                log.info("------ Creating Demo Data ------")
-                start_timer = time.perf_counter()
-                exitcode = create_demo(b1ddi, config)
-                end_timer = time.perf_counter() - start_timer
-                log.info("---------------------------------------------------")
-                log.info(f'Demo data created in {end_timer:0.2f}S')
-                log.info("Please remember to clean up when you have finished:")
-                command = '$ ' + ' '.join(sys.argv) + " --remove"
-                log.info("{}".format(command)) 
-            else:
-                log.error("Config {} contains errors".format(inifile))
-                exitcode = 3
-        elif args.remove:
-            log.info("------ Cleaning Up Demo Data ------")
-            start_timer = time.perf_counter()
-            exitcode = clean_up(b1ddi, config)
-            end_timer = time.perf_counter() - start_timer
-            log.info("---------------------------------------------------")
-            log.info(f'Demo data removed in {end_timer:0.2f}S')
+        
+        # Select Application for POV and execute
+        if args.app.casefold() == 'b1ddi':
+            exitcode = b1ddi_automation_demo(b1inifile, config=config, remove=args.remove)
+        elif args.app.casefold() == 'b1td-poc':
+            exitcode = b1td_pov(b1inifile, config=config, remove=args.remove)
         else:
-            log.error("Script Error - something seriously wrong")
-            exitcode = 99
+            log.error(f'{args.app} application not supported.')
+            exitcode = 5
 
     else:
         logging.error("No config found in {}".format(inifile))
