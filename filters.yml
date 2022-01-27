@@ -1,0 +1,72 @@
+---
+# Infoblox Web Categories (block)
+category_filters:
+  - name: risk_fraud_crime
+    description: Risk, fraud and crime web categories
+    categories:
+    - Browser Exploits
+    - Consumer Protection
+    - Illegal UK
+    - Malicious Downloads
+    - Malicious Sites
+    - Phishing
+    action: action_block
+  
+  - name: undesireable
+    description: Web categories that may be undesiralbe
+    categories:
+    - Alcohol
+    - Drugs
+    - Pornography
+    - Gambling
+    action: action_block
+
+application_filters:
+  - name: data_storage_apps
+    desctiption: Data Storage Apps example for detection/logging
+    apps:
+    - Jumpshare
+    - Google Drive
+    - Zippyshare
+    - Dropbox
+    - Degoo
+    - Boomi
+    - Disk-o
+    - pCloud
+    - Asustor NAS
+    - Syncwerk
+    - Koofr
+    - 2BrightSparks
+    - GMX MediaCenter
+    - HP Cohesity
+    - Blomp
+    - Backblaze
+    - Synology NAS
+    - WorkDrive
+    - MagentaCLOUD
+    - wölkli Cloud Storage
+    - Microsoft OneNote
+    - MiMedia
+    - Icedrive
+    - DepositFiles
+    - 4shared
+    - Sync
+    - WEB.DE Online Storage
+    - HiDrive
+    - YandexDisk
+    - iCloud
+    - Amazon-ddb
+    - WeTransfer
+    - Microsoft OneDrive
+    - IDrive Sync
+    - Allway Sync
+    - 1fichier
+    - MEGA
+    - SpaceObServer
+    - filehosting
+    - ADrive
+    - Filestack
+    - WinZip
+    - MediaFire
+    - STACK
+    action: action_log
