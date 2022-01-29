@@ -1,0 +1,72 @@
+Running the script, showing log output:
+
+% ./b1ddi-demo-automation.py -c ~/configs/apj-demo.ini 
+
+INFO:__main__:====== B1DDI Automation Demo Version 0.2.4 ======
+INFO:__main__:Checking config...
+INFO:__main__:Config checked out proceeding...
+INFO:__main__:------ Creating Demo Data ------
+INFO:__main__:---- Create IP Space ----
+INFO:__main__:Creating IP_Space marrison-zaphod-ip-space
+INFO:__main__:IP_Space marrison-zaphod-ip-space Created
+INFO:__main__:---- Create Address Block and subnets ----
+INFO:__main__:IP Space id found: ipam/ip_space/38b941b5-098a-11eb-baaa-26b14d489ac1
+INFO:__main__:~~~~ Creating Addresses block 192.168.0.0/16~~~~ 
+INFO:__main__:+++ Address block 192.168.0.0/16 created
+INFO:__main__:~~~~ Creating 2 subnets ~~~~
+INFO:__main__:Creating Subnet 192.168.0.0/24
+INFO:__main__:+++ Subnet 192.168.0.0/24 successfully created
+INFO:__main__:~~~~ Creating Range ~~~~
+INFO:__main__:Creating Range start: 192.168.0.126, end: 192.168.0.254
+INFO:__main__:+++ Range created in network 192.168.0.0/24
+INFO:__main__:~~~~ Creating 2 IPs ~~~~
+INFO:__main__:Creating IP Reservation: 192.168.0.2
+INFO:__main__:+++ IP 192.168.0.2 created
+INFO:__main__:+++ Network populated.
+INFO:__main__:Creating Subnet 192.168.1.0/24
+INFO:__main__:+++ Subnet 192.168.1.0/24 successfully created
+INFO:__main__:~~~~ Creating Range ~~~~
+INFO:__main__:Creating Range start: 192.168.1.126, end: 192.168.1.254
+INFO:__main__:+++ Range created in network 192.168.1.0/24
+INFO:__main__:~~~~ Creating 2 IPs ~~~~
+INFO:__main__:Creating IP Reservation: 192.168.1.2
+INFO:__main__:+++ IP 192.168.1.2 created
+INFO:__main__:+++ Network populated.
+INFO:__main__:+++ Successfully Populated IP Space
+INFO:__main__:---- Create DNS View ----
+INFO:__main__:Creating DNS View marrison-zaphod-view
+INFO:__main__:DNS View marrison-zaphod-view Created
+INFO:__main__:---- Create Forward & Reverse Zones ----
+INFO:__main__:DNS View id found: dns/view/38af1936-8510-449b-915b-5efe2ec6da0a
+INFO:__main__:+++ Zone zaphod.com created in view
+INFO:__main__:+++ Zone 168.192.in-addr.arpa. created in view
+INFO:__main__:Created record: host1.zaphod.com with IP 192.168.0.1
+INFO:__main__:Created record: host2.zaphod.com with IP 192.168.0.2
+INFO:__main__:Created record: host3.zaphod.com with IP 192.168.0.3
+INFO:__main__:Created record: host4.zaphod.com with IP 192.168.0.4
+INFO:__main__:Created record: host5.zaphod.com with IP 192.168.0.5
+INFO:__main__:Created record: host6.zaphod.com with IP 192.168.0.6
+INFO:__main__:Created record: host7.zaphod.com with IP 192.168.0.7
+INFO:__main__:Created record: host8.zaphod.com with IP 192.168.0.8
+INFO:__main__:Created record: host9.zaphod.com with IP 192.168.0.9
+INFO:__main__:Created record: host10.zaphod.com with IP 192.168.0.10
+INFO:__main__:+++ Successfully created 10 DNS Records
+INFO:__main__:+++ Records added to zones
+INFO:__main__:+++ Successfully Populated DNS View
+INFO:__main__:---------------------------------------------------
+INFO:__main__:Please remember to clean up when you have finished:
+INFO:__main__:$ ./b1ddi-demo-automation.py -c /Users/marrison/configs/demo.ini --remove
+
+% ./b1ddi-demo-automation.py -c ~/configs/demo.ini --remove
+
+INFO:__main__:====== B1DDI Automation Demo Version 0.2.4 ======
+INFO:__main__:------ Cleaning Up Demo Data ------
+INFO:__main__:Deleting IP_Space marrison-zaphod-ip-space
+INFO:__main__:+++ IP_Space marrison-zaphod-ip-space deleted
+INFO:__main__:Cleaning up Zones for DNS View marrison-zaphod-view
+INFO:__main__:Deleting zone zaphod.com.
+INFO:__main__:+++ Zone zaphod.com. deleted successfully
+INFO:__main__:Deleting zone 168.192.in-addr.arpa.
+INFO:__main__:+++ Zone 168.192.in-addr.arpa. deleted successfully
+INFO:__main__:Deleting DNS View marrison-zaphod-view
+INFO:__main__:+++ DNS View marrison-zaphod-view deleted
