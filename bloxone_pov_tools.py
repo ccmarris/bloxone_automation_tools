@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.3.1'
+__version__ = '0.4.1'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -58,6 +58,7 @@ import datetime
 import ipaddress
 import random
 import time
+import yaml
 
 
 # Global Variables
@@ -159,7 +160,7 @@ def open_file(filename):
 
 
 
-def read_demo_ini(ini_filename):
+def read_demo_ini(ini_filename, app=''):
     '''
     Open and parse ini file
 
@@ -174,32 +175,43 @@ def read_demo_ini(ini_filename):
     section = 'B1_POV'
     cfg = configparser.ConfigParser()
     config = {}
-    ini_keys = [ 'b1inifile', 'owner', 'location', 'customer', 'prefix',
-                 'postfix', 'allow_list', 'deny_list', 'policy', 'ext_net',
-                 'ext_cidr', 'ext_net_name', 'tld', 'dns_view', 'dns_domain', 
-                 'nsg', 'no_of_records', 'ip_space', 'base_net', 
-                 'no_of_networks', 'no_of_ips', 'container_cidr', 'cidr', 
-                 'net_comments' ]
 
-    # Attempt to read api_key from ini file
-    try:
-        cfg.read(ini_filename)
-    except configparser.Error as err:
-        logging.error(err)
-
-    # Look for demo section
-    if section in cfg:
-        config['filename'] = ini_filename
-        for key in ini_keys:
-            # Check for key in BloxOne section
-            if key in cfg[section]:
-                config[key] = cfg[section][key].strip("'\"")
-                logging.debug(f'Key {key} found in {ini_filename}: {config[key]}')
-            else:
-                logging.warning(f'Key {key} not found in {section} section.')
-                config[key] = ''
+    if app == 'b1ddi':
+        ini_keys = [ 'b1inifile', 'owner', 'location', 'customer', 'prefix',
+                     'postfix', 'tld', 'dns_view', 'dns_domain', 'nsg', 
+                     'no_of_records', 'ip_space', 'base_net', 
+                     'no_of_networks', 'no_of_ips', 'container_cidr', 
+                     'cidr', 'net_comments' ]
+    elif app == 'b1td':
+        ini_keys = [ 'b1inifile', 'owner', 'location', 'customer', 'prefix',
+                     'postfix', 'policy_level', 'policy', 'allow_list', 
+                     'deny_list', 'ext_net', 'ext_cidr', 'ext_net_name' ]
     else:
-        logging.warning(f'No {section} Section in config file: {ini_filename}')
+        log.error(f'App: {app} not supported.')
+        ini_keys = None
+    
+    if ini_keys:
+        # Attempt to read api_key from ini file
+        try:
+            cfg.read(ini_filename)
+        except configparser.Error as err:
+            logging.error(err)
+
+        # Look for demo section
+        if section in cfg:
+            config['filename'] = ini_filename
+            for key in ini_keys:
+                # Check for key in BloxOne section
+                if key in cfg[section]:
+                    config[key] = cfg[section][key].strip("'\"")
+                    logging.debug(f'Key {key} found in {ini_filename}: {config[key]}')
+                else:
+                    logging.warning(f'Key {key} not found in {section} section.')
+                    config[key] = ''
+        else:
+            logging.warning(f'No {section} Section in config file: {ini_filename}')
+    else:
+        config = {}
 
     return config
 
@@ -999,7 +1011,7 @@ def create_custom_lists(b1tdc, config={}):
     deny_list = config.get('deny_list')
 
     # Create Allow List
-    if not b1tdc.get_id('/named_list', key="name", value=allow_list):
+    if not b1tdc.get_id('/named_lists', key="name", value=allow_list):
         log.info("---- Create Allow List ----")
         body = { "name": allow_list,
                     "type": "custom_list",
@@ -1022,7 +1034,7 @@ def create_custom_lists(b1tdc, config={}):
         cust_lists['allow_list'] = None
 
     # Create Deny List
-    if not b1tdc.get_id('/named_list', key="name", value=deny_list):
+    if not b1tdc.get_id('/named_lists', key="name", value=deny_list):
         log.info("---- Create Deny List ----")
         body = { "name": deny_list,
                     "type": "custom_list",
@@ -1109,61 +1121,445 @@ def delete_custom_lists(b1tdc, config={}):
     return status
 
 
-def create_policy(b1tdc, config={}):
+def get_policies(cfg='policy_definitions.yml'):
     '''
+    Build ruleset from the policy definition yaml file
+
+    Parameters:
+        cfg(str): filename
+    
+    Returns:
+        Policy ruleset list
     '''
-    return
+    policies = {}
+
+    # Check for inifile and raise exception if not found
+    if os.path.isfile(cfg):
+        # Attempt to open policy definitions yaml file
+        try:
+            policies = yaml.safe_load(open(cfg, 'r'))
+        except yaml.YAMLError as err:
+            logging.error(err)
+            raise
+    else:
+        logging.error('No such file {}'.format(cfg))
+        raise FileNotFoundError(f'YAML policy file "{cfg}" not found.')
+
+    return policies
+
+
+def get_ruleset(policy_level):
+    '''
+    Build ruleset from the policy definition yaml file
+
+    Parameters:
+        level(str): 'high', 'medium', 'low'
+    
+    Returns:
+        Policy ruleset dictionary by action
+    '''
+    policies = {}
+    ruleset = {}
+    level = f'policy_{policy_level}'
+    allowed_actions = [ 'action_block', 
+                        'action_redirect', 
+                        'action_log',
+                        'action_allow' ]
+
+    policies = get_policies()
+
+    log.info(f'Retrieving ruleset for policy {policy_level}')
+
+    # Build ruleset
+    for action in policies[level]:
+        if action in allowed_actions:
+            ruleset[action] = []
+            for feed in policies[level][action]:
+                rule =  { 'action': action,
+                        'data': feed.get('name'),
+                        'type': feed.get('type') }
+                ruleset[action].append(rule)
+        else:
+            log.warning(f'- Action {action} not supported.')
+    
+    return ruleset
+
+
+def get_filter_rules(config={}, cfg='filters.yml'):
+    '''
+    Get web category and apploication filters
+
+    Parameters:
+        cfg(str): filename
+
+    Returns:
+        List of filter rules
+    '''
+    filter_rules = {}
+    filters = get_filters()
+    allowed_actions = [ 'action_block', 
+                        'action_redirect', 
+                        'action_log',
+                        'action_allow',
+                        'action_allow_with_local_resolution' ]
+
+    for filter_type in filters.keys():
+        type = filter_type[:-1]
+        for filter in filters[filter_type]:
+            filter_name = f"{config.get('prefix')}-{filter.get('name')}"
+            action = filter.get('action')
+            if action in allowed_actions:
+                rule = { 'action': action,
+                        'data': filter_name,
+                        'type': type }
+                if action not in filter_rules.keys():
+                    filter_rules[action] = []
+                filter_rules[action].append(rule)
+            else:
+                log.warning(f'- Action {action} not supported')
+        
+    return filter_rules
+
+
+def create_policy(b1tdc, config={}, ids={}):
+    '''
+    Create custom security policy
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+        ids(dict): dict of object IDs
+
+    Returns:
+        policy_id
+
+    '''
+    policy_id = ''
+    policy_name = config.get('policy')
+    policy_level = config.get('policy_level')
+    rules = []
+    ordered_actions = [ 'action_block', 
+                        'action_redirect', 
+                        'action_log', 
+                        'action_allow' ]
+
+    # Create policy
+    if not b1tdc.get_id('/security_policies', key='name', value=policy_name):
+        log.info("---- Create Customer Policy ----")
+        # Create ruleset
+        base_rules = [ { 'action': 'action_allow', 
+                         'data': config.get('allow_list'),
+                         'type': 'custom_list' }, 
+                       { 'action': 'action_block', 
+                         'data': config.get('deny_list'),
+                         'type': 'custom_list' } ]
+        
+        threat_rules = get_ruleset(policy_level)
+        filter_rules = get_filter_rules(config=config)
+
+        # Build ruleset
+        # Check for local resolution first
+        if 'action_allow_with_local_resolution' in filter_rules.keys():
+            log.info('Adding local resolution app filter rules')
+            rules += filter_rules['action_allow_with_local_resolution']
+            log.debug(f'Local resolution rules: {rules}')
+        # Add base_rules
+        log.info('Adding base rules')
+        log.debug(f'Base rules: {base_rules}')
+        rules += base_rules
+        # Go through ordered_actions
+        for action in ordered_actions:
+            if action in threat_rules.keys():
+                log.info(f'Adding {action} threat feeds')
+                rules += threat_rules[action]
+            if action in filter_rules.keys():
+                log.info(f'Adding {action} filters')
+                rules += filter_rules[action]
+
+        # Create body
+        body = { 'name': policy_name,
+                'network_lists': [ ids.get('net_id') ], 
+                'rules': rules }
+        log.debug("Body:{}".format(body))
+        log.info(f'Creating Security Policy {policy_name}')
+        response = b1tdc.create('/security_policies', body=json.dumps(body))
+        if response.status_code in b1tdc.return_codes_ok:
+            log.info(f'+++ Security Poicy {policy_name} created')
+            policy_id = response.json()['results']['id']
+            log.debug(f'policy_id: {policy_id}')
+        else:
+            log.warning(f'--- Security Policy {policy_name} not created')
+            log.debug(f'Return code: {response.status_code}')
+            log.warning(f'Return body: {response.text}')
+            policy_id = None
+    else:
+        log.warning(f'Security policy {policy_name} already exists')
+        policy_id = None
+        
+    return policy_id
 
 
 def delete_policy(b1tdc, config={}):
     '''
+    Delete Security Policy
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+    
+    Returns:
+        bool: True on success
     '''
-    return
+    status = False
+    policy_name = config.get('policy')
+
+    if policy_name:
+        id = b1tdc.get_id('/security_policies', key="name", value=policy_name)
+        if id:
+            log.info(f'Security policy {policy_name} found.')
+            body = { 'ids': [ id ] }
+            log.debug("Body:{}".format(body))
+            response = b1tdc.delete('/security_policies', body=json.dumps(body))
+            if response.status_code in b1tdc.return_codes_ok:
+                log.info(f'+++ Security policy {policy_name} deleted.')
+                status = True
+            else:
+                log.info(f'--- Failed to delete Security policy {policy_name}.')
+                log.debug(f'Return code: {response.status_code}')
+                log.debug(f'Return body: {response.text}')
+        else:
+            log.info(f'Security policy {policy_name} not found.')
+    else:
+        log.info('No network name provided, no actions taken.')
+
+    return status
 
 
-def create_content_filter(b1tdc, config={}):
+def get_filters(cfg='filters.yml'):
     '''
+    Get Filters from the policy definition yaml file
+
+    Parameters:
+        cfg(str): filename
+    
+    Returns:
+        Dictionary of category filters and app filters
     '''
-    return
+    filters = {}
+
+    # Check for inifile and raise exception if not found
+    if os.path.isfile(cfg):
+        # Attempt to open policy definitions yaml file
+        try:
+            filters = yaml.safe_load(open(cfg, 'r'))
+        except yaml.YAMLError as err:
+            logging.error(err)
+            raise
+
+    else:
+        logging.error('No such file {}'.format(cfg))
+        raise FileNotFoundError(f'YAML policy file "{cfg}" not found.')
+
+    return filters
 
 
-def delete_content_filter(b1tdc, config={}):
+def create_content_filters(b1tdc, config={}):
     '''
+    Create custom security policy
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+        ids(dict): dict of object IDs
+
+    Returns:
+        filter_id: object id of created filter or None
+
     '''
-    return
+    ids = []
+
+    log.info("---- Create Web Category Filters ----")
+    log.info(f'Retrieving category filters... ')
+    filters = get_filters()
+
+    for filter in filters['category_filters']:
+        filter_name = f"{config.get('prefix')}-{filter.get('name')}"
+        if not b1tdc.get_id('/category_filters', key='name', value=filter_name):
+            categories = filter.get('categories')
+            body = { 'name': filter_name, 
+                    'categories': categories,
+                    'description': filter.get('description') }
+            log.info(f'Creating category filter: {filter_name}')
+            log.debug(f'body: {body}')
+            response = b1tdc.create('/category_filters', body=json.dumps(body))
+            if response.status_code in b1tdc.return_codes_ok:
+                log.info(f'+++ Web Category Filter {filter_name} created')
+                id = response.json()['results']['id']
+                log.debug(f'Category Filter id: {id}')
+                ids.append(id)
+            else:
+                log.warning(f'--- Web Category Filter {filter_name} not created')
+                log.debug(f'Return code: {response.status_code}')
+                log.warning(f'Return body: {response.text}')
+        else:
+            log.warning(f'Web category filter {filter_name} already exists')
+
+    return ids
 
 
-def create_app_filter(b1tdc, config={}):
+def delete_content_filters(b1tdc, config={}):
     '''
+    Delete web category filters
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+
+    Returns:
+        bool: True on success
     '''
-    return
+    status = False
+    filters = get_filters()
+    ids = []
+
+    for filter in filters['category_filters']:
+        filter_name = f"{config.get('prefix')}-{filter.get('name')}"
+        if filter_name:
+            id = b1tdc.get_id('/category_filters', 
+                              key="name", 
+                              value=filter_name)
+            if id:
+                log.info(f'Web Category Filter {filter_name} found.')
+                ids.append(id)
+    if ids:
+        body = { 'ids': ids }
+        log.debug("Body:{}".format(body))
+        log.info('Deleting Web Category Filters')
+        response = b1tdc.delete('/category_filters', body=json.dumps(body))
+        if response.status_code in b1tdc.return_codes_ok:
+            log.info(f'+++ {len(ids)} Web Category Filters deleted.')
+            if status:
+                status = True
+            else:
+                status = False
+        else:
+            log.info(f'--- Failed to delete {len(ids)} Category Filters.')
+            log.debug(f'Return code: {response.status_code}')
+            log.debug(f'Return body: {response.text}')
+    else:
+        log.info('No web category filters found.')
+
+    return status
 
 
-def delete_app_filter(b1tdc, config={}):
+def create_application_filters(b1tdc, config={}):
     '''
     '''
-    return
+    ids = []
+    filters = get_filters()
+
+    log.info("---- Create Application Filters ----")
+    log.info(f'Retrieving application filters... ')
+
+    for filter in filters['application_filters']:
+        filter_name = f"{config.get('prefix')}-{filter.get('name')}"
+        if not b1tdc.get_id('/application_filters', key='name', value=filter_name):
+            apps = filter.get('apps')
+            criteria = []
+            for app in apps:
+                criteria.append({ 'name': app })
+            body = { 'name': filter_name, 
+                    'criteria': criteria,
+                    'description': filter.get('description')}
+            log.info(f'Creating application filter: {filter_name}')
+            log.debug(f'body: {body}')
+            response = b1tdc.create('/application_filters', body=json.dumps(body))
+            if response.status_code in b1tdc.return_codes_ok:
+                log.info(f'+++ Application Filter {filter_name} created')
+                id = response.json()['results']['id']
+                log.debug(f'App Filter id: {id}')
+                ids.append(id)
+            else:
+                log.warning(f'--- Application Filter {filter_name} not created')
+                log.debug(f'Return code: {response.status_code}')
+                log.warning(f'Return body: {response.text}')
+        else:
+            log.warning(f'Application filter {filter_name} already exists')
+            id = None
+
+    return ids
+
+
+def delete_application_filters(b1tdc, config={}):
+    '''
+    Delete application filters
+
+    Parameters:
+        b1tdc (obj): bloxone.b1tdc object
+        config (obj): ini config object
+
+    Returns:
+        bool: True on success
+    '''
+    status = False
+    filters = get_filters()
+    ids = []
+
+    for filter in filters['application_filters']:
+        filter_name = f"{config.get('prefix')}-{filter.get('name')}"
+        if filter_name:
+            id = b1tdc.get_id('/application_filters', 
+                              key="name", 
+                              value=filter_name)
+            if id:
+                log.info(f'Application Filter {filter_name} found.')
+                ids.append(id)
+    if ids:
+        body = { 'ids': ids }
+        log.debug("Body:{}".format(body))
+        log.info('Deleting Application Filters')
+        response = b1tdc.delete('/application_filters', body=json.dumps(body))
+        if response.status_code in b1tdc.return_codes_ok:
+            log.info(f'+++ {len(ids)} Application filters deleted.')
+            if status:
+                status = True
+            else:
+                status = False
+        else:
+            log.info(f'--- Failed to delete {len(ids)} Application filters.')
+            log.debug(f'Return code: {response.status_code}')
+            log.debug(f'Return body: {response.text}')
+    else:
+        log.info('No applications filters found.')
+
+    return status
 
 
 def create_b1td_pov(b1tdc, config):
     '''
     '''
     status = False
-    net_id = ''
+    ids = {}
     custom_lists = {}
 
-
     # Create External Network
-    net_id = create_network_list(b1tdc, config=config)
-    if net_id:
-        # Create allow and deny lists
-        custom_lists = create_custom_lists(b1tdc, config=config)
-        # if len(custom_lists) == 2:
-            # Create content filter
+    ids['net_id'] = create_network_list(b1tdc, config=config)
+    # if net_id:
 
-        # Create App filter
-        # Find unassigned DFPs
-        # Create Policy
+    # Create allow and deny lists
+    custom_lists = create_custom_lists(b1tdc, config=config)
+    ids.update(custom_lists)
+    # if len(custom_lists) == 2:
+
+    # Create content filter
+    ids['cat_filters'] = create_content_filters(b1tdc, config=config)
+
+    # Create App filter
+    ids['application_filters'] = create_application_filters(b1tdc, config=config)
+
+    # Find unassigned DFPs
+    # Create Policy
+    create_policy(b1tdc, config=config, ids=ids)
 
     return status
 
@@ -1174,8 +1570,11 @@ def b1td_clean_up(b1tdc, config):
     status = False
 
     # Delete External Network
+    status = delete_policy(b1tdc, config=config)
     status = delete_network_list(b1tdc, config=config)
     status = delete_custom_lists(b1tdc, config=config)
+    status - delete_content_filters(b1tdc, config=config)
+    status - delete_application_filters(b1tdc, config=config)
 
     return status
 
@@ -1190,21 +1589,21 @@ def b1td_pov(b1ini, config={}, remove=False):
     b1tdc = bloxone.b1tdc(b1ini)
 
     if not remove:
-        log.info("Checking config...")
-        if check_config(config):
-            log.info("Config checked out proceeding...")
-            log.info("------ Creating PoV Environment ------")
-            start_timer = time.perf_counter()
-            status = create_b1td_pov(b1tdc, config)
-            end_timer = time.perf_counter() - start_timer
-            log.info("---------------------------------------------------")
-            log.info(f'B1TD PoV environment data created in {end_timer:0.2f}S')
-            log.info("Please remember to clean up when you have finished:")
-            command = '$ ' + ' '.join(sys.argv) + " --remove"
-            log.info(f"{command}")
-        else:
-            log.error(f"Config {config.get('filename')} contains errors")
-            status = 3
+        # log.info("Checking config...")
+        # if check_config(config):
+            # log.info("Config checked out proceeding...")
+        log.info("------ Creating PoV Environment ------")
+        start_timer = time.perf_counter()
+        status = create_b1td_pov(b1tdc, config)
+        end_timer = time.perf_counter() - start_timer
+        log.info("---------------------------------------------------")
+        log.info(f'B1TD PoV environment data created in {end_timer:0.2f}S')
+        log.info("Please remember to clean up when you have finished:")
+        command = '$ ' + ' '.join(sys.argv) + " --remove"
+        log.info(f"{command}")
+        # else:
+            # log.error(f"Config {config.get('filename')} contains errors")
+            # status = 3
     elif remove:
         log.info("------ Cleaning Up B1TD PoV Environment ------")
         start_timer = time.perf_counter()
@@ -1228,11 +1627,12 @@ def main():
     args = parseargs()
     inifile = args.config
     debug = args.debug
+    app = args.app.casefold()
 
     # Read inifile
-    config = read_demo_ini(inifile)
+    config = read_demo_ini(inifile, app=app)
 
-    if config['b1inifile']:
+    if config.get('b1inifile'):
         b1inifile = config['b1inifile']
     else:
         # Try to use inifile
@@ -1257,10 +1657,14 @@ def main():
             setup_logging(debug=False, usefile=usefile)
         
         # Select Application for POV and execute
-        if args.app.casefold() == 'b1ddi':
-            exitcode = b1ddi_automation_demo(b1inifile, config=config, remove=args.remove)
-        elif args.app.casefold() == 'b1td-poc':
-            exitcode = b1td_pov(b1inifile, config=config, remove=args.remove)
+        if app == 'b1ddi':
+            exitcode = b1ddi_automation_demo(b1inifile,
+                                             config=config, 
+                                             remove=args.remove)
+        elif app == 'b1td':
+            exitcode = b1td_pov(b1inifile, 
+                                config=config, 
+                                remove=args.remove)
         else:
             log.error(f'{args.app} application not supported.')
             exitcode = 5
