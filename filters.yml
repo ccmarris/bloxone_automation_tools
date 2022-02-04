@@ -1,26 +1,7 @@
 ---
-# Infoblox Web Categories (block)
-category_filters:
-  - name: risk_fraud_crime
-    description: Risk, fraud and crime web categories
-    categories:
-    - Browser Exploits
-    - Consumer Protection
-    - Illegal UK
-    - Malicious Downloads
-    - Malicious Sites
-    - Phishing
-    action: action_block
-  
-  - name: undesireable
-    description: Web categories that may be undesiralbe
-    categories:
-    - Alcohol
-    - Drugs
-    - Pornography
-    - Gambling
-    action: action_block
-
+# Application Filters
+# Allowed Actions: action_block, action_redirect, action_log, action_allow 
+# action_allow_with_resolution (app filters only)
 application_filters:
   - name: data_storage_apps
     desctiption: Data Storage Apps example for detection/logging
@@ -70,3 +51,40 @@ application_filters:
     - MediaFire
     - STACK
     action: action_log
+
+# Examples:
+  - name: Office365
+    description: Office365
+    apps:
+      - Microsoft 365
+    action: action_allow_with_local_resolution
+
+  - name: Facebook
+    descrition: Social Media
+    apps:
+      - Facebook
+    action: action_block
+
+
+# Infoblox Web Categories 
+# Allowed Actions: action_block, action_redirect, action_log, action_allow 
+category_filters:
+  - name: risk_fraud_crime
+    description: Risk, fraud and crime web categories
+    categories:
+    - Browser Exploits
+    - Consumer Protection
+    - Illegal UK
+    - Malicious Downloads
+    - Malicious Sites
+    - Phishing
+    action: action_block
+  
+  - name: undesireable
+    description: Web categories that may be undesiralbe
+    categories:
+    - Alcohol
+    - Drugs
+    - Pornography
+    - Gambling
+    action: action_block

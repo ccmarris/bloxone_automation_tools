@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.16: http://docutils.sourceforge.net/" />
+<title>B1DDI Demo Automation</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7952 2016-07-26 18:15:59Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="b1ddi-demo-automation">
+<h1 class="title">B1DDI Demo Automation</h1>
+
+<div class="line-block">
+<div class="line">Version: 0.4.2</div>
+<div class="line">Author: Chris Marrison</div>
+<div class="line">Email: <a class="reference external" href="mailto:chris&#64;infoblox.com">chris&#64;infoblox.com</a></div>
+</div>
+<div class="section" id="description">
+<h1>Description</h1>
+<p>This script is designed to provide a standard, simple way to demonstrate
+the power of automation with the Bloxone platform for both BloxOne DDI and
+BloxOne Threat Defense. It can be used to create a set of demo data for
+demonstration of the GUI or initial set up for a proof of value.</p>
+<p>This includes the the clean up (removal) of this data once the
+demonstration is complete or no longer needed.</p>
+<p>To simplify configuration and allow for user and customer specific
+customisation, the scripts utilise a simple ini file that can be edited with
+your favourite text editor.</p>
+<p>The script has specifically been written in a <em>functional</em> manor to make it
+simple to understand.</p>
+</div>
+<div class="section" id="prerequisites">
+<h1>Prerequisites</h1>
+<p>Python 3.6 or above</p>
+<div class="section" id="installing-python">
+<h2>Installing Python</h2>
+<p>You can install the latest version of Python 3.x by downloading the appropriate
+installer for your system from <a class="reference external" href="https://python.org">python.org</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If you are running MacOS Catalina (or later) Python 3 comes pre-installed.
+Previous versions only come with Python 2.x by default and you will therefore
+need to install Python 3 as above or via Homebrew, Ports, etc.</p>
+<p>By default the python command points to Python 2.x, you can check this using
+the command:</p>
+<pre class="literal-block">
+$ python -V
+</pre>
+<p>To specifically run Python 3, use the command:</p>
+<pre class="last literal-block">
+$ python3
+</pre>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>Mac users will need the xcode command line utilities installed to use pip3,
+etc. If you need to install these use the command:</p>
+<pre class="last literal-block">
+$ xcode-select --install
+</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you are installing Python on Windows, be sure to check the box to have
+Python added to your PATH if the installer offers such an option
+(it's normally off by default).</p>
+</div>
+</div>
+<div class="section" id="modules">
+<h2>Modules</h2>
+<p>Non-standard modules:</p>
+<blockquote>
+<ul class="simple">
+<li>bloxone 0.8.5+</li>
+<li>PyYAML</li>
+</ul>
+</blockquote>
+<p>These are specified in the <em>requirements.txt</em> file.</p>
+<p>The latest version of the bloxone module is available on PyPI and can simply be
+installed using:</p>
+<pre class="literal-block">
+pip3 install bloxone --user
+</pre>
+<p>To upgrade to the latest version:</p>
+<pre class="literal-block">
+pip3 install bloxone --user --upgrade
+</pre>
+<p>Complete list of modules:</p>
+<pre class="literal-block">
+import bloxone
+import os
+import sys
+import json
+import argparse
+import logging
+import datetime
+import ipaddress
+import time
+import yaml
+</pre>
+</div>
+</div>
+<div class="section" id="basic-configuration">
+<h1>Basic Configuration</h1>
+<p>There are two simple inifiles for configuration. Although these can be combined
+into a single file with the appropriate sections, these have been kept separate
+so that API keys, and the bloxone configuration, is maintained separately from
+customer specific demo configurations. This helps you maintain a single copy
+of your API key that is referenced by multiple customer/demo configurations.</p>
+<p>This also allows you to keep copies of what was demonstrated for a particular
+customer or purpose and where appropriate use different bloxone accounts easily.</p>
+<p>In addition to the inifiles, two YAML files provide additional configuration
+utilised in creating the security policy. By default there is no need to
+make any changes to these files, however, for advanced usage these can be
+customised as necessary to create an appropriate policy.</p>
+<div class="section" id="bloxone-ini">
+<h2>bloxone.ini</h2>
+<p>The <em>bloxone.ini</em> file is used by the bloxone module to access the bloxone
+API. A sample inifile for the bloxone module is shared as <em>bloxone.ini</em> and
+follows the following format provided below:</p>
+<pre class="literal-block">
+[BloxOne]
+url = 'https://csp.infoblox.com'
+api_version = 'v1'
+api_key = '&lt;you API Key here&gt;'
+</pre>
+<p>Simply create and add your API Key, and this is ready for the bloxone
+module used by the automation demo script. This inifile should be kept
+in a safe area of your filesystem and can be referenced with full path
+in the demo.ini file.</p>
+</div>
+<div class="section" id="demo-ini">
+<h2>demo.ini</h2>
+<p>A template is also provided for the demo script inifile <em>demo.ini</em>. Unless an
+alternative is specified on the command line, the script will automatically use
+the demo.ini from the current working directory if available.</p>
+<p>The format of the demo ini file is:</p>
+<pre class="literal-block">
+[B1_POV]
+# Full path to bloxone module inifile
+b1inifile = bloxone.ini
+
+# User and customer details
+owner = &lt;username&gt;
+location = &lt;location info&gt;
+customer = &lt;customer name&gt;
+
+# Alternate pre/postfix configuration
+prefix = %(customer)s
+postfix = %(customer)s
+
+# B1DDI
+# DNS Configuration
+tld = com
+dns_view = %(owner)s-%(postfix)s-view
+dns_domain = %(customer)s.%(tld)s
+nsg = b1ddi-auto-demo
+no_of_records = 10
+
+# IP Space Configuration
+ip_space = %(owner)s-%(postfix)s-demo
+no_of_networks = 10
+no_of_ips = 5
+base_net = 192.168.0.0
+container_cidr = 16
+cidr = 24
+net_comments = Office Network, VoIP Network, POS Network, Guest WiFI, IoT Network
+
+# B1TD POV
+policy_level = medium
+policy = %(prefix)s-policy
+allow_list = %(prefix)s-allow
+deny_list = %(prefix)s-deny
+# Public IP
+ext_net = x.x.x.x
+ext_cidr = 32
+ext_net_name = %(customer)s-network
+</pre>
+<p>The <em>demo.ini</em> file uses a single section, however, you can consider the keys
+and <em>customer</em>. Most of the remaining keys are automatically created from the
+<em>custom</em> key, but can be overridden as needed. The exception being the <em>ext_net</em>
+key used for BloxOne Threat Defense. This has to be globally unique across the
+BloxOne Threat Defense Platform.</p>
+<p>Only the common keys and app specific keys are required to execute the script
+for a particular BloxOne App.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>As can be seen the demo inifile references the bloxone.ini file by default
+in the current working directory with the key b1inifile. It is suggested
+that you modify this with the full path to your bloxone ini file.</p>
+<p class="last">For example, <em>b1inifile = /Users/&lt;username&gt;/configs/bloxone.ini</em></p>
+</div>
+<p>The demo ini file is used to form the naming conventions and
+Owner tagging to both ensure that it is easy to identify who the demo data
+belongs to and ensure this is identified by automated clean-up scripts within
+the Infoblox demo environments.</p>
+</div>
+<div class="section" id="bloxone-ddi-specific-keys">
+<h2>BloxOne DDI Specific keys</h2>
+<p>For BloxOne DDI you can customise the number of networks, subnet masks, and
+the first base network for the auto created demo data, as well as, the number
+of ips and hosts to be created.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Basic checks of of the base network and CIDR prefix lengths is performed by
+the script.</p>
+</div>
+<p>One important key in the inifile is <em>nsg</em> this is used to facilitate the
+creation of authoritative DNS zones. A generic Name Server Group has been
+defined, however, you are able to define your own and utilise this as needed.
+This also means that it is possible for you to demostrate the automation and
+population of an On Prem Host for DNS.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>The default bloxone.ini and script assumes that the b1ddi-auto-demo
+DNS Server Group (NSG) already exists. If you are running outside of Infoblox
+you will need to create this NSG, or specify an alternative. This requires
+an On Prem Host to be assigned to the NSG.</p>
+<p class="last">Within Infoblox, the default NSG has an associated On Prem Host that is not
+in use. Please do not try to use or modify either the On Prem Host or the
+NSG as this may affect other peoples ability to perform demonstrations.
+Please create your own and customise your inifile appropriately.</p>
+</div>
+</div>
+<div class="section" id="bloxone-threat-defense-specific-keys">
+<h2>BloxOne Threat Defense Specific keys</h2>
+<p>For BloxOne Threat Defense you can customise the names used to generate the
+network and custom (named) lists, as well as the policy name. In this case,
+the external network or IP must be specified using the <em>ext_net</em> key and where
+appropriate the <em>ext_cidr</em> key.</p>
+<p>The <em>policy_level</em> key is used to specify the acceptable risk level of the
+customer and is set to <em>medium</em> by default. This controls the threat feeds
+and associated policy actions that are implemented when creating the security
+policy. The associated policy definition is defined in the
+<em>policy_definitions.yml</em> file.</p>
+</div>
+<div class="section" id="yaml-configuration-files">
+<h2>YAML Configuration files</h2>
+<p>There are two YAML configuration files used in the creation of the security
+policy. The <em>policy_definitions.yml</em> file defines the threat feeds and
+associated policy actions as set by the <em>policy_level</em> key in the demo ini
+file. These definitions define the action, and order of the threat feeds with
+prefined sets for high, mediam and low 'levels'. These default 'levels' are
+based on Infoblox experience and knowledge about the threat feeds.</p>
+<p>The format of the <em>policy_definitions.yml</em> file is shown in the sample below:</p>
+<pre class="literal-block">
+---
+policy_name:
+    action_block:
+        - name: base
+          type: named_feed
+        - name: Threat Insight - Data Exfiltration
+          type: custom_list
+
+    action_log:
+        - name: ext_ransomware
+          type: named_feed
+</pre>
+<p>The prefix <em>policy_</em> is required, therefore to create a custom 'level' the
+first line of the definition section, must be of the format policy_*&lt;name&gt;*
+e.g. <em>policy_custom1</em>. This would then be referenced using the <em>policy_level</em>
+key in the demo ini file simply as <em>custom1</em>:</p>
+<pre class="literal-block">
+policy_level = custom1
+</pre>
+<p>The second YAML configuration file is the <em>filters.yml</em> file. This file defines
+Web Category Filters and Application Filters, including the name of the filter,
+descrition, categories or applications and the policy action.</p>
+<p>These are automatically positioned in the appropriate place in the security
+policy based on the action type. You can define your own filters based on
+the following formats or additional by following the examples in the default
+file.</p>
+<p>Please see the sample of the <em>filters.yml</em> file below, including the
+examples that are commented by default:</p>
+<pre class="literal-block">
+---
+# Infoblox Web Categories
+# Allowed Actions: action_block, action_redirect, action_log, action_allow
+category_filters:
+- name: risk_fraud_crime
+    description: Risk, fraud and crime web categories
+    categories:
+    - Browser Exploits
+    - Consumer Protection
+    - Illegal UK
+    - Malicious Downloads
+    - Malicious Sites
+    - Phishing
+    action: action_block
+
+# Application Filters
+# Allowed Actions: action_block, action_redirect, action_log, action_allow
+# action_allow_with_resolution (app filters only)
+application_filters:
+    - name: data_storage_apps
+        desctiption: Data Storage Apps example for detection/logging
+        apps:
+            - Jumpshare
+            - Google Drive
+            - Zippyshare
+            - Dropbox
+        action: action_log
+
+# Addional Examples:
+    # - name: Office365
+        # description: Office365
+        # apps:
+            # - Microsoft 365
+        # action: action_allow_with_local_resolution
+
+    # - name Facebook
+        # descrition: Social Media
+        # apps:
+            # - Facebook
+        # action: action_block
+</pre>
+</div>
+</div>
+<div class="section" id="usage">
+<h1>Usage</h1>
+<p>The bloxone_automation_tools.py provides the ability to automatically create
+and remove configurations, based on the ini and yml files for both the
+BloxOne DDI and BloxOne Threat Defense apps on the Infoblox BloxOne SaaS
+platform.</p>
+<p>This allows the script to be used for both demonstration purposes of the
+automation capabilities provide by the BloxOne APIs, or the basis for initial
+deployments. With the customisation capabilities that the YAML files provide
+this is particularly useful in automatically creating 'best practise' security
+policies for BloxOne Threat Defense.</p>
+<p>The script supports -h or --help on the command line to access the options
+available:</p>
+<pre class="literal-block">
+$ ./bloxone_automation_tools.py --help
+usage: bloxone_automation_tools.py [-h] -a APP [-c CONFIG] [-r] [-o] [-d]
+
+BloxOne Automation Tools
+
+optional arguments:
+    -h, --help            show this help message and exit
+    -a APP, --app APP     BloxOne Application [ b1ddi, b1td ]
+    -c CONFIG, --config CONFIG
+                          Overide Config file
+    -r, --remove          Clean-up demo data
+    -o, --output          Ouput log to file &lt;customer&gt;.log
+    -d, --debug           Enable debug messages
+</pre>
+<p>With configuration and customisation performed within the ini files
+or for more advance usage the ini and YAML files, the script
+becomes very simple to run with effectively two modes:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>Create mode</li>
+<li>Clean up mode</li>
+</ol>
+</blockquote>
+<p>To run in create mode, simply point the script at the appropriate ini fle
+as required and specify which application using the --app option specifying
+either <em>b1ddi</em> or <em>b1td</em>.</p>
+<p>For example:</p>
+<pre class="literal-block">
+% ./b1ddi_demo_automation.py --app b1ddi
+% ./b1ddi_demo_automation.py --app b1td
+% ./b1ddi_demo_automation.py -c &lt;path to inifile&gt; --app &lt;app&gt;
+% ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1ddi
+% ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1td
+</pre>
+<p>To run in clean-up mode simply add <em>--remove</em> or <em>-r</em> to the command line:</p>
+<pre class="literal-block">
+% ./b1ddi_demo_automation.py --app b1ddi --remove
+% ./b1ddi_demo_automation.py --app b1td --remove
+% ./b1ddi_demo_automation.py -c &lt;path to inifile&gt; --app &lt;app&gt; --remove
+% ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1ddi --remove
+% ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1td --remove
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is safe to run the script multiple times in either mode. As the script
+checks for the existence of the Objects.</p>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>If you have issues running in 'create' mode or interupt the script please
+ensure that you run in 'clean-up' mode using --remove.</p>
+<p class="last">This will clean up any partially create objects where applicable.</p>
+</div>
+<div class="section" id="bloxone-ddi">
+<h2>BloxOne DDI</h2>
+<pre class="code literal-block">
+--app b1ddi
+</pre>
+<p>In create mode the script creates an IP Space with an address block, subnets are then
+created wth ranges and IP reservations. These are based on the following elements in
+the ini file:</p>
+<pre class="literal-block">
+ip_space = %(owner)s-%(postfix)s-demo
+base_net = 192.168.0.0
+no_of_networks = 10
+no_of_ips = 5
+container_cidr = 16
+cidr = 24
+net_comments = Office Network, VoIP Network, POS Network, Guest WiFI, IoT Network
+</pre>
+<p>The ranges will effectively take up the top 50% of the subnet, whilst the number
+of IP reservations is ether be the <em>no_of_ips</em> or 25% of the subnet, which ever
+is the smaller number.</p>
+<p>Configuration checking is performed to confirm that <em>base_net</em> is a valid IPv4
+address and both <em>container_cidr</em> and <em>cidr</em> are suitable and larger than a
+/28 and /29 respectively.</p>
+<p>Subnet are created with a &quot;Comment/Description&quot; that is randomly assigned from
+the list of descriptions in <em>net_comments</em>. A default set is included in the
+example <em>demo.ini</em> file, however, this can be customised as needed. The number
+of descriptions is not fixed to the five examples so you can include more or
+less descriptions as needed - this is just a sample set.</p>
+<p>A DNS View is then also created with an authoritative forward lookup zone and
+/16 reverse lookup zone for the <em>base_net</em> (adjusted for byte boundaries). These
+zones are populated with a set of A records wth corresponding PTRs.</p>
+<p>These are controlled by the following keys in the ini file:</p>
+<pre class="literal-block">
+# DNS Configuration
+tld = com
+dns_view = %(owner)s-%(postfix)s-view
+dns_domain = %(customer)s.%(tld)s
+nsg = b1ddi-auto-demo
+no_of_records = 10
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The script will create an appropriate number of A and PTR records
+based on the <em>no_of_records</em> or the 'size' of the base network, which
+ever is the smaller number.</p>
+</div>
+</div>
+<div class="section" id="bloxone-threat-defense">
+<h2>BloxOne Threat Defense</h2>
+<pre class="code literal-block">
+--app b1td
+</pre>
+<p>In create mode the script will create an External Network; Custom List for
+allow and deny, with an example in each; example Category and Application
+Filters; and a Security Policy combining these with the appropriate risk level
+of threat feeds applied in a best practise manner.</p>
+<p>These are controlled by the following keys in the ini file:</p>
+<pre class="literal-block">
+# B1TD
+policy_level = medium
+policy = %(prefix)s-policy
+allow_list = %(prefix)s-allow
+deny_list = %(prefix)s-deny
+# Public IP
+ext_net = x.x.x.x
+ext_cidr = 32
+ext_net_name = %(customer)s-network
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The external network <em>must</em> be meet the uniqueness requirements of the
+BloxOne Platform.</p>
+</div>
+<p>The policy actions, threat feeds, and filters are all configured in the
+<em>policy_definitions.yml</em> and <em>filters.yml</em> files.</p>
+<p>The script automatically orders the Policy Rules based on the rule type and
+associated action. The order of the threat feeds associated with each action
+will then use the order presented in the <em>policy_definitions.yml</em> file.</p>
+</div>
+<div class="section" id="output">
+<h2>Output</h2>
+<p>Section headers are represented using:</p>
+<pre class="literal-block">
+============ Section Heading ============
+</pre>
+<p>Subsections are represented using:</p>
+<pre class="literal-block">
+------------ Subsection ------------
+</pre>
+<p>Although the majority of messages are general information, certain
+message use the convention of &quot;+++ message&quot; for positive messages about
+the configuration, whilst negative messages use &quot;--- message&quot;. For example:</p>
+<pre class="literal-block">
+INFO: +++ Range created in network 192.168.0.0/24
+INFO: --- Subnet 192.168.1.0/24 not created
+</pre>
+<p>Or for BloxOne Threat Defense:</p>
+<pre class="literal-block">
++++ Network List Zaphod-network created
+--- Security Policy Zaphod-policy not created
+</pre>
+<p>Example output can be found in the <em>example-b1ddi.txt</em> and <em>example-b1td.txt</em>
+files.</p>
+<p>In addition to the output to console the <em>-o</em> or <em>--out</em> option can be used
+to create a &lt;customer&gt;.log file.</p>
+</div>
+</div>
+<div class="section" id="license">
+<h1>License</h1>
+<p>This project, and the bloxone module are licensed under the 2-Clause BSD License
+- please see LICENSE file for details.</p>
+</div>
+<div class="section" id="aknowledgements">
+<h1>Aknowledgements</h1>
+<p>Thanks to the BloxOne DDI SME Team, and others, for beta testing the BloxOne
+DDI functionality and Steve Makousky, Steve Salo, Ross Gibson and Gary Cox for
+beta testing the BloxOne Threat Defense functionality. Thank you for providing
+all your feedback prior to this being released in to the wild.</p>
+</div>
+</div>
+</body>
+</html>

@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -76,17 +76,17 @@ def parseargs():
     Returns:
         Returns parsed arguments
     '''
-    parse = argparse.ArgumentParser(description='SE Automation Demo - Create Demo')
-    parse.add_argument('-o', '--output', action='store_true', 
-                        help="Ouput log to file <customer>.log") 
-    parse.add_argument('-a', '--app', type=str, default='b1ddi',
-                        help="BloxOne Application [b1ddi, b1td]")
+    parse = argparse.ArgumentParser(description='BloxOne Automation Tools')
+    parse.add_argument('-a', '--app', type=str, required=True,
+                        help="BloxOne Application [ b1ddi, b1td ]")
     parse.add_argument('-c', '--config', type=str, default='demo.ini',
                         help="Overide Config file")
-    parse.add_argument('-d', '--debug', action='store_true', 
-                        help="Enable debug messages")
     parse.add_argument('-r', '--remove', action='store_true', 
                         help="Clean-up demo data")
+    parse.add_argument('-o', '--output', action='store_true', 
+                        help="Ouput log to file <customer>.log") 
+    parse.add_argument('-d', '--debug', action='store_true', 
+                        help="Enable debug messages")
 
     return parse.parse_args()
 
@@ -96,18 +96,13 @@ def setup_logging(debug=False, usefile=False):
      Set up logging
 
      Parameters:
-        advanced (bool): True or False.
+        debug (bool): True or False.
 
      Returns:
         None.
 
     '''
 
-    # Set advanced level
-    # if level == "advanced":
-     #    logging.addLevelName(15, "advanced")
-      #   logging.basicConfig(level=advanced,
-       #                      format='%(asctime)s %(levelname)s: %(message)s')
     if debug:
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s %(levelname)s: %(message)s')
