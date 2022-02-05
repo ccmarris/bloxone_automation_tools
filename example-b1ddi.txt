@@ -1,6 +1,6 @@
 Running the script, showing log output:
 
-% ./b1ddi-demo-automation.py -c ~/configs/apj-demo.ini 
+% ./b1ddi-demo-automation.py -c ~/configs/demo.ini --app b1ddi
 
 INFO:__main__:====== B1DDI Automation Demo Version 0.2.4 ======
 INFO:__main__:Checking config...
@@ -57,7 +57,7 @@ INFO:__main__:---------------------------------------------------
 INFO:__main__:Please remember to clean up when you have finished:
 INFO:__main__:$ ./b1ddi-demo-automation.py -c /Users/marrison/configs/demo.ini --remove
 
-% ./b1ddi-demo-automation.py -c ~/configs/demo.ini --remove
+% ./b1ddi-demo-automation.py -c ~/configs/demo.ini --app b1ddi --remove
 
 INFO:__main__:====== B1DDI Automation Demo Version 0.2.4 ======
 INFO:__main__:------ Cleaning Up Demo Data ------

@@ -1,0 +1,65 @@
+% ./bloxone_automation_tools.py --config ~/Projects/configs/b1td_demo.ini --app b1td 
+INFO:__main__:====== B1TD PoV Automation Version 0.4.2 ======
+INFO:__main__:------ Creating PoV Environment ------
+INFO:__main__:---- Create Network List ----
+INFO:__main__:Creating Network List Zaphod-network
+INFO:__main__:+++ Network List Zaphod-network created
+INFO:__main__:---- Create Allow List ----
+INFO:__main__:Creating Allow List Zaphod-allow
+INFO:__main__:+++ Allow List Zaphod-allow created
+INFO:__main__:---- Create Deny List ----
+INFO:__main__:Creating Deny List Zaphod-deny
+INFO:__main__:+++ Deny List Zaphod-deny created
+INFO:__main__:---- Create Web Category Filters ----
+INFO:__main__:Retrieving category filters... 
+INFO:__main__:Creating category filter: Zaphod-risk_fraud_crime
+INFO:__main__:+++ Web Category Filter Zaphod-risk_fraud_crime created
+INFO:__main__:Creating category filter: Zaphod-undesireable
+INFO:__main__:+++ Web Category Filter Zaphod-undesireable created
+INFO:__main__:---- Create Application Filters ----
+INFO:__main__:Retrieving application filters... 
+INFO:__main__:Creating application filter: Zaphod-data_storage_apps
+INFO:__main__:+++ Application Filter Zaphod-data_storage_apps created
+INFO:__main__:Creating application filter: Zaphod-Office365
+INFO:__main__:+++ Application Filter Zaphod-Office365 created
+INFO:__main__:Creating application filter: Zaphod-Facebook
+INFO:__main__:+++ Application Filter Zaphod-Facebook created
+INFO:__main__:---- Create Customer Policy ----
+INFO:__main__:Retrieving ruleset for policy medium
+INFO:__main__:Adding local resolution app filter rules
+INFO:__main__:Adding base rules
+INFO:__main__:Adding action_block threat feeds
+INFO:__main__:Adding action_block filters
+INFO:__main__:Adding action_log threat feeds
+INFO:__main__:Adding action_log filters
+INFO:__main__:Creating Security Policy Zaphod-policy
+INFO:__main__:+++ Security Poicy Zaphod-policy created
+INFO:__main__:---------------------------------------------------
+INFO:__main__:B1TD PoV environment data created in 8.28S
+INFO:__main__:Please remember to clean up when you have finished:
+INFO:__main__:$ ./bloxone_automation_tools.py --config /Users/marrison/Projects/configs/b1td_demo.ini --app b1td --remove
+
+
+
+% ./bloxone_automation_tools.py --config ~/Projects/configs/b1td_demo.ini --app b1td --remove
+INFO:__main__:====== B1TD PoV Automation Version 0.4.2 ======
+INFO:__main__:------ Cleaning Up B1TD PoV Environment ------
+INFO:__main__:Security policy Zaphod-policy found.
+INFO:__main__:+++ Security policy Zaphod-policy deleted.
+INFO:__main__:Network list Zaphod-network found.
+INFO:__main__:+++ Network list Zaphod-network deleted.
+INFO:__main__:Allow list Zaphod-allow found.
+INFO:__main__:+++ Allow list Zaphod-allow deleted.
+INFO:__main__:Deny list Zaphod-deny found.
+INFO:__main__:+++ Deny list Zaphod-deny deleted.
+INFO:__main__:Web Category Filter Zaphod-risk_fraud_crime found.
+INFO:__main__:Web Category Filter Zaphod-undesireable found.
+INFO:__main__:Deleting Web Category Filters
+INFO:__main__:+++ 2 Web Category Filters deleted.
+INFO:__main__:Application Filter Zaphod-data_storage_apps found.
+INFO:__main__:Application Filter Zaphod-Office365 found.
+INFO:__main__:Application Filter Zaphod-Facebook found.
+INFO:__main__:Deleting Application Filters
+INFO:__main__:+++ 3 Application filters deleted.
+INFO:__main__:---------------------------------------------------
+INFO:__main__:B1TD Environment removed in 10.72S
