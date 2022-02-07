@@ -1539,22 +1539,21 @@ def create_b1td_pov(b1tdc, config):
 
     # Create External Network
     ids['net_id'] = create_network_list(b1tdc, config=config)
-    # if net_id:
+    if ids['net_id']:
 
-    # Create allow and deny lists
-    custom_lists = create_custom_lists(b1tdc, config=config)
-    ids.update(custom_lists)
-    # if len(custom_lists) == 2:
+        # Create allow and deny lists
+        custom_lists = create_custom_lists(b1tdc, config=config)
+        if len(custom_lists) == 2:
+            ids.update(custom_lists)
 
-    # Create content filter
-    ids['cat_filters'] = create_content_filters(b1tdc, config=config)
+            # Create content filter
+            ids['cat_filters'] = create_content_filters(b1tdc, config=config)
 
-    # Create App filter
-    ids['application_filters'] = create_application_filters(b1tdc, config=config)
+            # Create App filter
+            ids['application_filters'] = create_application_filters(b1tdc, config=config)
 
-    # Find unassigned DFPs
-    # Create Policy
-    create_policy(b1tdc, config=config, ids=ids)
+            # Create Security Policy
+            create_policy(b1tdc, config=config, ids=ids)
 
     return status
 

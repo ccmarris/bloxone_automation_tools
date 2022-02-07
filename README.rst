@@ -1,6 +1,6 @@
-=====================
-B1DDI Demo Automation
-=====================
+========================
+BloxOne Automation Tools
+========================
 
 | Version: 0.4.2
 | Author: Chris Marrison
@@ -98,6 +98,18 @@ Complete list of modules::
     import ipaddress
     import time
     import yaml
+
+
+Installation
+------------
+
+The simplest way to install and maintain the tools is to clone this 
+repository::
+
+    % git clone https://github.com/ccmarris/bloxone_automation_tools
+
+
+Alternative you can download as a Zip file.
 
 
 Basic Configuration
@@ -249,10 +261,13 @@ the external network or IP must be specified using the *ext_net* key and where
 appropriate the *ext_cidr* key.
 
 The *policy_level* key is used to specify the acceptable risk level of the 
-customer and is set to *medium* by default. This controls the threat feeds
-and associated policy actions that are implemented when creating the security
-policy. The associated policy definition is defined in the 
-*policy_definitions.yml* file.
+customer and controls the threat feeds used to create the policy rules within
+the security policy. The policy levels, high, medium, low and logonly are 
+predefined in the policy_definitions.yml file. 
+
+.. note::
+
+    The *policy_level* is set to **medium** as the default.
 
 
 YAML Configuration files
@@ -388,19 +403,19 @@ either *b1ddi* or *b1td*.
 
 For example::
 
-    % ./b1ddi_demo_automation.py --app b1ddi
-    % ./b1ddi_demo_automation.py --app b1td
-    % ./b1ddi_demo_automation.py -c <path to inifile> --app <app>
-    % ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1ddi
-    % ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1td
+    % ./bloxone_automation_tools.py --app b1ddi
+    % ./bloxone_automation_tools.py --app b1td
+    % ./bloxone_automation_tools.py -c <path to inifile> --app <app>
+    % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1ddi
+    % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1td
     
 To run in clean-up mode simply add *--remove* or *-r* to the command line::
 
-    % ./b1ddi_demo_automation.py --app b1ddi --remove
-    % ./b1ddi_demo_automation.py --app b1td --remove
-    % ./b1ddi_demo_automation.py -c <path to inifile> --app <app> --remove
-    % ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1ddi --remove
-    % ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1td --remove
+    % ./bloxone_automation_tools.py --app b1ddi --remove
+    % ./bloxone_automation_tools.py --app b1td --remove
+    % ./bloxone_automation_tools.py -c <path to inifile> --app <app> --remove
+    % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1ddi --remove
+    % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1td --remove
 
 .. note::
 
@@ -537,11 +552,13 @@ files.
 In addition to the output to console the *-o* or *--out* option can be used 
 to create a <customer>.log file.
 
+
 License
 -------
 
 This project, and the bloxone module are licensed under the 2-Clause BSD License
 - please see LICENSE file for details.
+
 
 Aknowledgements
 ---------------

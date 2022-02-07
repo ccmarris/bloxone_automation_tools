@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.16: http://docutils.sourceforge.net/" />
-<title>B1DDI Demo Automation</title>
+<title>BloxOne Automation Tools</title>
 <style type="text/css">
 
 /*
@@ -360,8 +360,8 @@ ul.auto-toc {
 </style>
 </head>
 <body>
-<div class="document" id="b1ddi-demo-automation">
-<h1 class="title">B1DDI Demo Automation</h1>
+<div class="document" id="bloxone-automation-tools">
+<h1 class="title">BloxOne Automation Tools</h1>
 
 <div class="line-block">
 <div class="line">Version: 0.4.2</div>
@@ -452,6 +452,15 @@ import time
 import yaml
 </pre>
 </div>
+</div>
+<div class="section" id="installation">
+<h1>Installation</h1>
+<p>The simplest way to install and maintain the tools is to clone this
+repository:</p>
+<pre class="literal-block">
+% git clone https://github.com/ccmarris/bloxone_automation_tools
+</pre>
+<p>Alternative you can download as a Zip file.</p>
 </div>
 <div class="section" id="basic-configuration">
 <h1>Basic Configuration</h1>
@@ -582,10 +591,13 @@ network and custom (named) lists, as well as the policy name. In this case,
 the external network or IP must be specified using the <em>ext_net</em> key and where
 appropriate the <em>ext_cidr</em> key.</p>
 <p>The <em>policy_level</em> key is used to specify the acceptable risk level of the
-customer and is set to <em>medium</em> by default. This controls the threat feeds
-and associated policy actions that are implemented when creating the security
-policy. The associated policy definition is defined in the
-<em>policy_definitions.yml</em> file.</p>
+customer and controls the threat feeds used to create the policy rules within
+the security policy. The policy levels, high, medium, low and logonly are
+predefined in the policy_definitions.yml file.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <em>policy_level</em> is set to <strong>medium</strong> as the default.</p>
+</div>
 </div>
 <div class="section" id="yaml-configuration-files">
 <h2>YAML Configuration files</h2>
@@ -711,19 +723,19 @@ as required and specify which application using the --app option specifying
 either <em>b1ddi</em> or <em>b1td</em>.</p>
 <p>For example:</p>
 <pre class="literal-block">
-% ./b1ddi_demo_automation.py --app b1ddi
-% ./b1ddi_demo_automation.py --app b1td
-% ./b1ddi_demo_automation.py -c &lt;path to inifile&gt; --app &lt;app&gt;
-% ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1ddi
-% ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1td
+% ./bloxone_automation_tools.py --app b1ddi
+% ./bloxone_automation_tools.py --app b1td
+% ./bloxone_automation_tools.py -c &lt;path to inifile&gt; --app &lt;app&gt;
+% ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1ddi
+% ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1td
 </pre>
 <p>To run in clean-up mode simply add <em>--remove</em> or <em>-r</em> to the command line:</p>
 <pre class="literal-block">
-% ./b1ddi_demo_automation.py --app b1ddi --remove
-% ./b1ddi_demo_automation.py --app b1td --remove
-% ./b1ddi_demo_automation.py -c &lt;path to inifile&gt; --app &lt;app&gt; --remove
-% ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1ddi --remove
-% ./b1ddi_demo_automation.py -c ~/configs/customer.ini --app b1td --remove
+% ./bloxone_automation_tools.py --app b1ddi --remove
+% ./bloxone_automation_tools.py --app b1td --remove
+% ./bloxone_automation_tools.py -c &lt;path to inifile&gt; --app &lt;app&gt; --remove
+% ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1ddi --remove
+% ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1td --remove
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
