@@ -52,8 +52,8 @@ policy_high:
       type: named_feed
     - name: spambot-ip
       type: named_feed
-    - name: pubic-doh-ip
-      type: named_feed
+    #- name: pubic-doh-ip
+    #  type: named_feed
 
 policy_medium: 
   action_block:
