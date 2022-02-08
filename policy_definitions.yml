@@ -46,8 +46,6 @@ policy_high:
       type: named_feed
     - name: farsightnod
       type: named_feed
-    - name: antimalware-ip
-      type: named_feed
     - name: ext-antimalware-ip
       type: named_feed
     - name: ext-exploitkit-ip
