@@ -1,2 +1,4 @@
 RFE Status
 1. [x] Add comments to subnets (gcox@infoblox.com)
+2. [ ] Add Endpoint Group and automatically add to security policy 
+(thelaire@infoblox.com)
