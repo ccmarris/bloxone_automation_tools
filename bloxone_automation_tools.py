@@ -1166,6 +1166,7 @@ def get_ruleset(policy_level):
     log.info(f'Retrieving ruleset for policy {policy_level}')
 
     # Build ruleset
+    # Need to check policy_level exists
     for action in policies[level]:
         if action in allowed_actions:
             ruleset[action] = []
