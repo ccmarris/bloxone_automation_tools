@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 #vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 '''
 
@@ -11,7 +11,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20220106
+ Date Last Updated: 20220608
 
  Todo:
 
@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.4.2'
+__version__ = '0.5.0'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -1275,6 +1275,7 @@ def create_policy(b1tdc, config={}, ids={}):
         # Create body
         body = { 'name': policy_name,
                 'network_lists': [ ids.get('net_id') ], 
+                # 'roaming_device_groups': [ ids.get('roaming_groups') ]
                 'rules': rules }
         log.debug("Body:{}".format(body))
         log.info(f'Creating Security Policy {policy_name}')
@@ -1448,14 +1449,32 @@ def delete_content_filters(b1tdc, config={}):
     return status
 
 
+def get_supported_apps(b1tdc):
+    '''
+    '''
+    supported_apps = []
+    url = f'{b1tdc.base_url}/api/acs/v1/apps?_fields=name'
+
+    results = b1tdc._apiget(url)
+    if results.status_code in b1tdc.return_codes_ok:
+        for app in results.json().get('results'):
+            supported_apps.append(app.get('name'))
+        else:
+            supported_apps = []
+    
+    return supported_apps
+
+
 def create_application_filters(b1tdc, config={}):
     '''
     '''
     ids = []
     filters = get_filters()
+    supported_apps = get_supported_apps(b1tdc)
 
     log.info("---- Create Application Filters ----")
     log.info(f'Retrieving application filters... ')
+
 
     for filter in filters['application_filters']:
         filter_name = f"{config.get('prefix')}-{filter.get('name')}"
@@ -1463,7 +1482,10 @@ def create_application_filters(b1tdc, config={}):
             apps = filter.get('apps')
             criteria = []
             for app in apps:
-                criteria.append({ 'name': app })
+                if app in supported_apps:
+                    criteria.append({ 'name': app })
+                else:
+                    log.warning(f'{app} not supported.')
             body = { 'name': filter_name, 
                     'criteria': criteria,
                     'description': filter.get('description')}
