@@ -11,7 +11,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20220608
+ Date Last Updated: 20220613
 
  Todo:
 
@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -1455,12 +1455,15 @@ def get_supported_apps(b1tdc):
     supported_apps = []
     url = f'{b1tdc.base_url}/api/acs/v1/apps?_fields=name'
 
-    results = b1tdc._apiget(url)
-    if results.status_code in b1tdc.return_codes_ok:
-        for app in results.json().get('results'):
+    response = b1tdc._apiget(url)
+    if response.status_code in b1tdc.return_codes_ok:
+        for app in response.json().get('results'):
             supported_apps.append(app.get('name'))
-        else:
-            supported_apps = []
+    else:
+        supported_apps = []
+        log.warning(f'--- Could not get support apps')
+        log.debug(f'Return code: {response.status_code}')
+        log.warning(f'Return body: {response.text}')
     
     return supported_apps
 
@@ -1475,20 +1478,28 @@ def create_application_filters(b1tdc, config={}):
     log.info("---- Create Application Filters ----")
     log.info(f'Retrieving application filters... ')
 
-
     for filter in filters['application_filters']:
         filter_name = f"{config.get('prefix')}-{filter.get('name')}"
         if not b1tdc.get_id('/application_filters', key='name', value=filter_name):
             apps = filter.get('apps')
             criteria = []
             for app in apps:
+                # Check whether app is supported
                 if app in supported_apps:
                     criteria.append({ 'name': app })
                 else:
-                    log.warning(f'{app} not supported.')
-            body = { 'name': filter_name, 
-                    'criteria': criteria,
-                    'description': filter.get('description')}
+                    log.warning(f'App: {app} in filter {filter_name} not supported.')
+
+            # Check in case of empty criteria
+            if criteria:
+                body = { 'name': filter_name, 
+                        'criteria': criteria,
+                        'description': filter.get('description')}
+            else:
+                log.warning(f'No supported apps found in filter {filter_name}')
+                body = { 'name': filter_name, 
+                        'description': filter.get('description')}
+
             log.info(f'Creating application filter: {filter_name}')
             log.debug(f'body: {body}')
             response = b1tdc.create('/application_filters', body=json.dumps(body))
