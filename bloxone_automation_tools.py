@@ -11,7 +11,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20220613
+ Date Last Updated: 20220718
 
  Todo:
 
@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.5.1'
+__version__ = '0.6.0'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -564,10 +564,21 @@ def create_dnsview(b1ddi, config):
     # Check for existence
     if not b1ddi.get_id('/dns/view', key="name", value=config['dns_view']):
         log.info("---- Create DNS View ----")
-        tag_body = create_tag_body(config)
-        body = '{ "name": "' + config['dns_view'] + '",' + tag_body +' }'
-        log.debug("Body:{}".format(body))
 
+        tag_body = create_tag_body(config)
+        # Associate IP Space
+        ip_space = b1ddi.get_id('/ipam/ip_space', 
+                                key="name", 
+                                value=config['ip_space'],
+                                include_path=True)
+        if ip_space:
+            ip_spaces = '"ip_spaces": [ "' + ip_space + '"]'
+            body = ( '{ "name": "' + config['dns_view'] + '",' 
+                    + ip_spaces + ',' + tag_body +' }' )
+        else:
+            body = '{ "name": "' + config['dns_view'] + '",' + tag_body +' }'
+
+        log.debug("Body:{}".format(body))
         log.info("Creating DNS View {}".format(config['dns_view']))
         response = b1ddi.create('/dns/view', body=body)
         if response.status_code in b1ddi.return_codes_ok:
