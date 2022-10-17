@@ -11,7 +11,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20220718
+ Date Last Updated: 20221017
 
  Todo:
 
@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.6.0'
+__version__ = '0.6.2'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -81,6 +81,8 @@ def parseargs():
                         help="BloxOne Application [ b1ddi, b1td ]")
     parse.add_argument('-c', '--config', type=str, default='demo.ini',
                         help="Overide Config file")
+    parse.add_argument('-6', '--ipv6', action='store_true',
+                        help="Build IPv6 Nets")
     parse.add_argument('-r', '--remove', action='store_true', 
                         help="Clean-up demo data")
     parse.add_argument('-o', '--output', action='store_true', 
@@ -365,6 +367,92 @@ def create_networks(b1ddi, config):
     return status
 
 
+def create_ipv6_networks(b1ddi, config):
+    '''
+    Create IPv6 Subnets
+
+    Parameters:
+        b1ddi (obj): bloxone.b1ddi object
+        config (obj): ini config object
+    
+    Returns:
+        status (bool): True if successful
+    '''
+    status = False
+    net_comments = config['net_comments'].split(',')
+
+    # Get id of ip_space
+    log.info("---- Create IPv6 Address Block and subnets ----")
+    space = b1ddi.get_id('/ipam/ip_space', key="name", 
+                        value=config['ip_space'], include_path=True)
+    if space:
+        log.info("IP Space id found: {}".format(space))
+
+        tag_body = create_tag_body(config)
+        base_net = '2001:db8::'
+
+        # Create subnets
+        cidr = '32'
+        body = ( '{ "address": "' + base_net + '", '
+                + '"cidr": "' + cidr + '", '
+                + '"space": "' + space + '", '
+                + '"comment": "Internal Address Allocation", '
+                + tag_body + ' }' )
+        log.debug("Body:{}".format(body))
+        log.info("~~~~ Creating IPv6 Addresses block {}/{}~~~~ "
+                .format(base_net, cidr))
+        response = b1ddi.create('/ipam/address_block', body=body)
+
+        if response.status_code in b1ddi.return_codes_ok:
+            log.info("+++ IPv6 Address block {}/{} created".format(base_net, cidr))
+
+            # Create subnets
+            network = ipaddress.ip_network(base_net + '/' + cidr)
+            # Reset cidr for subnets
+            new_cidr = '64'
+            subnets = network.subnets(new_prefix=int(new_cidr))
+            if int(new_cidr) > int(cidr) and int(new_cidr) < 127:
+                nets = int(config['no_of_networks'])
+                log.info("~~~~ Creating {} IPv6 subnets ~~~~".format(nets))
+
+                for n in range(nets):
+                    subnet = next(subnets)
+                    address = str(subnet.network_address)
+                    comment = net_comments[random.randrange(0,len(net_comments))]
+                    body = ( '{ "address": "' + address + '", '
+                            + '"cidr": "' + new_cidr + '", '
+                            + '"space": "' + space + '", '
+                            + '"comment": "' + comment + '", '
+                            + tag_body + ' }' )
+                    log.debug("Body:{}".format(body))
+                    log.info("Creating IPv6 Subnet {}/{}".format(address, new_cidr))
+                    response = b1ddi.create('/ipam/subnet', body=body)
+
+                    if response.status_code in b1ddi.return_codes_ok:
+                        log.info("+++ IPv6 Subnet {}/{} successfully created".format(address, cidr))
+                        if populate_ipv6_network(b1ddi, config, space, subnet):
+                            log.info("+++ IPv6 Network populated.")
+                            status = True
+                        else:
+                            log.warning("--- Issues populating IPv6 network")
+
+                    else:
+                        log.warning("--- IPv6 Subnet {}/{} not created".format(network, cidr))
+                        log.debug("Return code: {}".format(response.status_code))
+                        log.debug("Return body: {}".format(response.text))
+            else:
+                log.warning(f"IPv6 network block cannot support {new_cidr} subnets")
+
+        else:
+            log.warning("--- IPv6 Address Block {}/{} not created".format(base_net, cidr))
+            log.debug("Return code: {}".format(response.status_code))
+            log.debug("Return body: {}".format(response.text))
+    else:
+        log.warning("IP Space {} does not exist".format(config['ip_space']))
+
+    return status
+
+
 def populate_network(b1ddi, config, space, network):
     '''
     Create DHCP Range and IPs
@@ -423,6 +511,71 @@ def populate_network(b1ddi, config, space, network):
             status = True
         else:
             log.warning("--- IP {} not created".format(address))
+            log.debug("Return code: {}".format(response.status_code))
+            log.debug("Return body: {}".format(response.text))
+            status = False
+
+    return status
+
+
+def populate_ipv6_network(b1ddi, config, space, network):
+    '''
+    Create DHCP Range and IPs
+
+    Parameters:
+        b1ddi (obj): bloxone.b1ddi object
+        config (obj): ini config object
+        network (str): Network base address
+    
+    Returns:
+        status (bool): True if successful
+    '''
+    status = False
+
+    log.info("~~~~ Creating IPv6 Range ~~~~")
+    tag_body = create_tag_body(config)
+
+    net_size = network.num_addresses
+    range_size = int(net_size / 2)
+    broadcast = network.broadcast_address
+    start_ip = str(broadcast - (range_size + 1))
+    end_ip = str(broadcast - 1)
+
+    body = ( '{ "start": "' + start_ip + '", "end": "' + end_ip +
+            '", "space": "' + space + '", '  + tag_body + ' }' )
+    log.debug("Body:{}".format(body))
+
+    log.info("Creating IPv6 Range start: {}, end: {}".format(start_ip, end_ip))
+    response = b1ddi.create('/ipam/range', body=body)
+    if response.status_code in b1ddi.return_codes_ok:
+        log.info("+++ IPv6 Range created in network {}".format(str(network)))
+        status = True
+    else:
+        log.warning("--- IPv6 Range for network {} not created".format(str(network)))
+        log.debug("Return code: {}".format(response.status_code))
+        log.debug("Return body: {}".format(response.text))
+
+    # Add reservations
+
+    no_of_ips = int(range_size / 2)
+    # If number requested is lt than caluculated use configured
+    if int(config['no_of_ips']) < no_of_ips:
+        no_of_ips = int(config['no_of_ips'])
+    log.info("~~~~ Creating {} IPs ~~~~".format(no_of_ips))
+    ips = network.hosts()
+    for ip in range(no_of_ips):
+        address = str(next(ips))
+        body = ( '{ "address": "' + address + '", "space": "' 
+                + space + '", '  + tag_body + ' }' )
+        log.debug("Body:{}".format(body))
+
+        log.info("Creating IPv6 Reservation: {}".format(address))
+        response = b1ddi.create('/ipam/address', body=body)
+        if response.status_code in b1ddi.return_codes_ok:
+            log.info("+++ IP {} created".format(address))
+            status = True
+        else:
+            log.warning("--- IPv6 {} not created".format(address))
             log.debug("Return code: {}".format(response.status_code))
             log.debug("Return body: {}".format(response.text))
             status = False
@@ -694,13 +847,14 @@ def add_records(b1ddi, config):
     return status
 
 
-def create_demo(b1ddi, config):
+def create_demo(b1ddi, config, ipv6=False):
     '''
     Create the demo data
 
     Parameters:
         b1ddi (obj): bloxone.b1ddi object
         config (obj): ini config object
+        ipv6 (bool): Build IPv6 networks
     
     Returns:
         status (bool): True if successful
@@ -713,6 +867,14 @@ def create_demo(b1ddi, config):
         # Create network structure
         if create_networks(b1ddi, config):
             log.info("+++ Successfully Populated IP Space")
+            if ipv6:
+                log.info("=== Creating IPv6 Networks ===")
+                if create_ipv6_networks(b1ddi, config):
+                    log.info("+++ Successfully Populated IPv6 in IP Space")
+                else:
+                    log.error("--- Failed to create IPv6 networks in {}"
+                            .format(config['ip_space']))
+                    exitcode = 1
         else:
             log.error("--- Failed to create networks in {}"
                     .format(config['ip_space']))
@@ -868,7 +1030,7 @@ def check_config(config):
     return config_ok
 
 
-def b1ddi_automation_demo(b1ini, config={}, remove=False):
+def b1ddi_automation_demo(b1ini, config={}, ipv6=False, remove=False):
     '''
     '''
     status = 0
@@ -885,7 +1047,7 @@ def b1ddi_automation_demo(b1ini, config={}, remove=False):
             log.info("Config checked out proceeding...")
             log.info("------ Creating Demo Data ------")
             start_timer = time.perf_counter()
-            status = create_demo(b1ddi, config)
+            status = create_demo(b1ddi, config, ipv6=ipv6)
             end_timer = time.perf_counter() - start_timer
             log.info("---------------------------------------------------")
             log.info(f'Demo data created in {end_timer:0.2f}S')
@@ -1699,6 +1861,7 @@ def main():
         if app == 'b1ddi':
             exitcode = b1ddi_automation_demo(b1inifile,
                                              config=config, 
+                                             ipv6=args.ipv6,
                                              remove=args.remove)
         elif app == 'b1td':
             exitcode = b1td_pov(b1inifile, 
