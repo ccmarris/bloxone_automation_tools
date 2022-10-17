@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.6.2'
+__version__ = '0.6.3'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -538,7 +538,7 @@ def populate_ipv6_network(b1ddi, config, space, network):
     net_size = network.num_addresses
     range_size = int(net_size / 2)
     broadcast = network.broadcast_address
-    start_ip = str(broadcast - (range_size + 1))
+    start_ip = str(network.network_address) + 'ffff'
     end_ip = str(broadcast - 1)
 
     body = ( '{ "start": "' + start_ip + '", "end": "' + end_ip +
