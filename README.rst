@@ -411,6 +411,7 @@ For example::
     % ./bloxone_automation_tools.py --app b1td
     % ./bloxone_automation_tools.py -c <path to inifile> --app <app>
     % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1ddi
+    % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1ddi --ipv6
     % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1td
     
 To run in clean-up mode simply add *--remove* or *-r* to the command line::

@@ -364,7 +364,7 @@ ul.auto-toc {
 <h1 class="title">BloxOne Automation Tools</h1>
 
 <div class="line-block">
-<div class="line">Version: 0.6.0</div>
+<div class="line">Version: 0.6.4</div>
 <div class="line">Author: Chris Marrison</div>
 <div class="line">Email: <a class="reference external" href="mailto:chris&#64;infoblox.com">chris&#64;infoblox.com</a></div>
 </div>
@@ -384,7 +384,7 @@ simple to understand.</p>
 </div>
 <div class="section" id="prerequisites">
 <h1>Prerequisites</h1>
-<p>Python 3.6 or above</p>
+<p>Python 3.7 or above</p>
 <div class="section" id="installing-python">
 <h2>Installing Python</h2>
 <p>You can install the latest version of Python 3.x by downloading the appropriate
@@ -527,6 +527,9 @@ base_net = 192.168.0.0
 container_cidr = 16
 cidr = 24
 net_comments = Office Network, VoIP Network, POS Network, Guest WiFI, IoT Network
+
+# IPv6
+ipv6_prefix = &quot;2001:db8::&quot;
 
 # B1TD POV
 policy_level = medium
@@ -705,6 +708,7 @@ optional arguments:
     -a APP, --app APP     BloxOne Application [ b1ddi, b1td ]
     -c CONFIG, --config CONFIG
                           Overide Config file
+    -6, --ipv6            Build IPv6 Networks
     -r, --remove          Clean-up demo data
     -o, --output          Ouput log to file &lt;customer&gt;.log
     -d, --debug           Enable debug messages
@@ -727,6 +731,7 @@ either <em>b1ddi</em> or <em>b1td</em>.</p>
 % ./bloxone_automation_tools.py --app b1td
 % ./bloxone_automation_tools.py -c &lt;path to inifile&gt; --app &lt;app&gt;
 % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1ddi
+% ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1ddi --ipv6
 % ./bloxone_automation_tools.py -c ~/configs/customer.ini --app b1td
 </pre>
 <p>To run in clean-up mode simply add <em>--remove</em> or <em>-r</em> to the command line:</p>

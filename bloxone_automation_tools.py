@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.6.4'
+__version__ = '0.6.5'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -82,7 +82,7 @@ def parseargs():
     parse.add_argument('-c', '--config', type=str, default='demo.ini',
                         help="Overide Config file")
     parse.add_argument('-6', '--ipv6', action='store_true',
-                        help="Build IPv6 Nets")
+                        help="Build IPv6 Networks")
     parse.add_argument('-r', '--remove', action='store_true', 
                         help="Clean-up demo data")
     parse.add_argument('-o', '--output', action='store_true', 
@@ -178,7 +178,7 @@ def read_demo_ini(ini_filename, app=''):
                      'postfix', 'tld', 'dns_view', 'dns_domain', 'nsg', 
                      'no_of_records', 'ip_space', 'base_net', 
                      'no_of_networks', 'no_of_ips', 'container_cidr', 
-                     'cidr', 'net_comments' ]
+                     'cidr', 'net_comments', 'ipv6_prefix' ]
     elif app == 'b1td':
         ini_keys = [ 'b1inifile', 'owner', 'location', 'customer', 'prefix',
                      'postfix', 'policy_level', 'policy', 'allow_list', 
@@ -389,7 +389,10 @@ def create_ipv6_networks(b1ddi, config):
         log.info("IP Space id found: {}".format(space))
 
         tag_body = create_tag_body(config)
-        base_net = '2001:db8::'
+        base_net = config.get('ipv6_prefix')
+        if not base_net:
+            log.warning('No ipv6_prefix defined in inifile, using 2001:db8::')
+            base_net = '2001:db8::'
 
         # Create subnets
         cidr = '32'
@@ -868,7 +871,7 @@ def create_demo(b1ddi, config, ipv6=False):
         if create_networks(b1ddi, config):
             log.info("+++ Successfully Populated IP Space")
             if ipv6:
-                log.info("=== Creating IPv6 Networks ===")
+                log.info("~~~ Creating IPv6 Networks ~~~")
                 if create_ipv6_networks(b1ddi, config):
                     log.info("+++ Successfully Populated IPv6 in IP Space")
                 else:
