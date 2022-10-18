@@ -11,7 +11,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20221017
+ Date Last Updated: 20221018
 
  Todo:
 
@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.6.3'
+__version__ = '0.6.4'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -910,22 +910,6 @@ def clean_up(b1ddi, config):
     exitcode = 0
 
     # Check for existence
-    id = b1ddi.get_id('/ipam/ip_space', key="name", value=config['ip_space'])
-    if id:
-        log.info("Deleting IP_Space {}".format(config['ip_space']))
-        response = b1ddi.delete('/ipam/ip_space', id=id)
-        if response.status_code in b1ddi.return_codes_ok:
-            log.info("+++ IP_Space {} deleted".format(config['ip_space']))
-        else:
-            log.warning("--- IP Space {} not deleted due to error".format(config['ip_space']))
-            log.debug("Return code: {}".format(response.status_code))
-            log.debug("Return body: {}".format(response.text))
-            exitcode = 1
-    else:
-        log.warning("IP Space {} not fonud.".format(config['ip_space'])) 
-        exitcode = 1 
-
-    # Check for existence
     id = b1ddi.get_id('/dns/view', key="name", value=config['dns_view'])
     if id:
         log.info("Cleaning up Zones for DNS View {}".format(config['dns_view']))
@@ -944,6 +928,22 @@ def clean_up(b1ddi, config):
             exitcode = 1
     else:
         log.warning("DNS View {} not fonud.".format(config['dns_view'])) 
+        exitcode = 1 
+
+    # Check for existence
+    id = b1ddi.get_id('/ipam/ip_space', key="name", value=config['ip_space'])
+    if id:
+        log.info("Deleting IP_Space {}".format(config['ip_space']))
+        response = b1ddi.delete('/ipam/ip_space', id=id)
+        if response.status_code in b1ddi.return_codes_ok:
+            log.info("+++ IP_Space {} deleted".format(config['ip_space']))
+        else:
+            log.warning("--- IP Space {} not deleted due to error".format(config['ip_space']))
+            log.debug("Return code: {}".format(response.status_code))
+            log.debug("Return body: {}".format(response.text))
+            exitcode = 1
+    else:
+        log.warning("IP Space {} not fonud.".format(config['ip_space'])) 
         exitcode = 1 
 
     return exitcode
