@@ -2,7 +2,7 @@
 BloxOne Automation Tools
 ========================
 
-| Version: 0.6.0
+| Version: 0.6.4
 | Author: Chris Marrison
 | Email: chris@infoblox.com
 
@@ -28,7 +28,7 @@ simple to understand.
 Prerequisites
 -------------
 
-Python 3.6 or above
+Python 3.7 or above
 
 
 Installing Python
@@ -187,6 +187,9 @@ The format of the demo ini file is::
     container_cidr = 16
     cidr = 24
     net_comments = Office Network, VoIP Network, POS Network, Guest WiFI, IoT Network
+
+    # IPv6
+    ipv6_prefix = "2001:db8::"
 
     # B1TD POV 
     policy_level = medium
@@ -385,6 +388,7 @@ available::
         -a APP, --app APP     BloxOne Application [ b1ddi, b1td ]
         -c CONFIG, --config CONFIG
                               Overide Config file
+        -6, --ipv6            Build IPv6 Networks
         -r, --remove          Clean-up demo data
         -o, --output          Ouput log to file <customer>.log
         -d, --debug           Enable debug messages
