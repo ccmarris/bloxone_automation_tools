@@ -1,5 +1,5 @@
 ---
-# Standard Policy Definitions
+# standard policy definitions
 policy_high: 
   action_block:
     - name: base
@@ -8,51 +8,64 @@ policy_high:
       type: named_feed
     - name: ext-base-antimalware
       type: named_feed
-    - name: malware-dga
-      type: named_feed
     - name: ransomware
       type: named_feed
-    - name: surbl-lite
+    - name: malware-dga
+      type: named_feed
+    - name: etiqrisk
       type: named_feed
     - name: multi-domain.surbl
       type: named_feed
+    - name: suspicious
+      type: named_feed
+    - name: suspicious-lookalikes
+      type: named_feed
+    - name: suspicious-noed
+      type: named_feed
     - name: cryptocurrency
       type: named_feed
-    - name: Threat Insight - Data Exfiltration
-      type: custom_list
-    - name: Threat Insight - DGA
-      type: custom_list
-    - name: Threat Insight - DNS Messenger
-      type: custom_list
-    - name: public-doh
+    - name: sanctions-high
       type: named_feed
-    - name: bot-ip
-      type: named_feed
+    - name: threat insight - data exfiltration
+      type: custom_list
+    - name: threat insight - dga
+      type: custom_list
+    - name: threat insight - dns messenger
+      type: custom_list
     - name: antimalware-ip
       type: named_feed
-    - name: exploitkit-ip
+    - name: nccic-ip
       type: named_feed
     - name: tor-exit-node-ip
       type: named_feed
-    - name: ext-tor-exit-node-ip
+    - name: eecn-ip
+      type: named_feed
+    - name: etiqrisk-ip
       type: named_feed
     - name: bogon
       type: named_feed
 
+
   action_log:
     - name: ext-ransomware
       type: named_feed
-    - name: fresh-domain.surbl
+    - name: nccic-host
+      type: named_feed
+    - name: sanctions-med
+      type: named_feed
+    - name: noed
       type: named_feed
     - name: farsightnod
       type: named_feed
+    - name: fresh-domain.surbl
+      type: named_feed
     - name: ext-antimalware-ip
       type: named_feed
-    - name: ext-exploitkit-ip
+    - name: sanctions-ip
       type: named_feed
-    - name: spambot-ip
+    - name: public-doh
       type: named_feed
-    #- name: pubic-doh-ip
+    #- name: public-doh-ip
     #  type: named_feed
 
 policy_medium: 
@@ -63,52 +76,65 @@ policy_medium:
       type: named_feed
     - name: ext-base-antimalware
       type: named_feed
-    - name: malware-dga
-      type: named_feed
     - name: ransomware
       type: named_feed
-    - name: Threat Insight - Data Exfiltration
-      type: custom_list
-    - name: Threat Insight - DGA
-      type: custom_list
-    - name: Threat Insight - DNS Messenger
-      type: custom_list
-    - name: bot-ip
+    - name: malware-dga
       type: named_feed
-    - name: bogon
+    - name: etiqrisk
       type: named_feed
+    - name: suspicious
+      type: named_feed
+    - name: suspicious-lookalikes
+      type: named_feed
+    - name: suspicious-noed
+      type: named_feed
+    - name: sanctions-high
+      type: named_feed
+    - name: threat insight - data exfiltration
+      type: custom_list
+    - name: threat insight - dga
+      type: custom_list
+    - name: threat insight - dns messenger
+      type: custom_list
+    - name: antimalware-ip
+      type: named_feed
+
 
   action_log:
     - name: ext-ransomware
       type: named_feed
-    - name: surbl-lite
+    - name: nccic-host
       type: named_feed
-    - name: multi-domain.surbl
+    - name: sanctions-med
       type: named_feed
-    - name: cryptocurrency
-      type: named_feed
-    - name: public-doh
-      type: named_feed
-    - name: fresh-domain.surbl
+    - name: noed
       type: named_feed
     - name: farsightnod
       type: named_feed
-    - name: antimalware-ip
+    - name: cryptocurrency
       type: named_feed
-    - name: exploitkit-ip
+    - name: multi-domain.surbl
       type: named_feed
-    - name: tor-exit-node-ip
-      type: named_feed
-    - name: ext-tor-exit-node-ip
+    - name: fresh-domain.surbl
       type: named_feed
     - name: ext-antimalware-ip
       type: named_feed
-    - name: ext-exploitkit-ip
+    - name: sanctions-ip
       type: named_feed
-    - name: spambot-ip
+    - name: public-doh
       type: named_feed
-    # - name: pubic-doh-ip
-      # type: named_feed
+    - name: nccic-ip
+      type: named_feed
+    - name: tor-exit-node-ip
+      type: named_feed
+    - name: eecn-ip
+      type: named_feed
+    - name: etiqrisk-ip
+      type: named_feed
+    - name: bogon
+      type: named_feed
+    #- name: public-doh-ip
+    #  type: named_feed
 
 policy_low: 
   action_block:
@@ -118,48 +144,65 @@ policy_low:
       type: named_feed
     - name: ext-base-antimalware
       type: named_feed
-    - name: malware-dga
-      type: named_feed
     - name: ransomware
       type: named_feed
-    - name: Threat Insight - Data Exfiltration
+    - name: malware-dga
+      type: named_feed
+    - name: etiqrisk
+      type: named_feed
+    - name: suspicious
+      type: named_feed
+    - name: suspicious-lookalikes
+      type: named_feed
+    - name: threat insight - data exfiltration
       type: custom_list
+
 
   action_log:
     - name: ext-ransomware
       type: named_feed
-    - name: surbl-lite
+    - name: nccic-host
       type: named_feed
-    - name: multi-domain.surbl
+    - name: sanctions-med
+      type: named_feed
+    - name: noed
+      type: named_feed
+    - name: sanctions-high
       type: named_feed
     - name: cryptocurrency
       type: named_feed
-    - name: public-doh
+    - name: multi-domain.surbl
       type: named_feed
-    - name: fresh-domain.surbl
+    - name: suspicious-noed
       type: named_feed
     - name: farsightnod
       type: named_feed
-    - name: Threat Insight - DGA
+    - name: fresh-domain.surbl
+      type: named_feed
+    - name: threat insight - dga
       type: custom_list
-    - name: Threat Insight - DNS Messenger
+    - name: threat insight - dns messenger
       type: custom_list
-    - name: antimalware-ip
-      type: named_feed
-    - name: exploitkit-ip
-      type: named_feed
-    - name: ext-tor-exit-node-ip
-      type: named_feed
     - name: ext-antimalware-ip
       type: named_feed
-    - name: ext-exploitkit-ip
+    - name: sanctions-ip
       type: named_feed
-    - name: bot-ip
+    - name: public-doh
+      type: named_feed
+    - name: antimalware-ip
+      type: named_feed
+    - name: nccic-ip
+      type: named_feed
+    - name: tor-exit-node-ip
+      type: named_feed
+    - name: eecn-ip
+      type: named_feed
+    - name: etiqrisk-ip
       type: named_feed
     - name: bogon
       type: named_feed
-    # - name: pubic-doh-ip
-      # type: named_feed
+    #- name: public-doh-ip
+    #  type: named_feed
 
 policy_logonly: 
   action_log:
@@ -169,43 +212,60 @@ policy_logonly:
       type: named_feed
     - name: ext-base-antimalware
       type: named_feed
-    - name: malware-dga
-      type: named_feed
     - name: ransomware
       type: named_feed
+    - name: malware-dga
+      type: named_feed
+    - name: etiqrisk
+      type: named_feed
+    - name: suspicious
+      type: named_feed
+    - name: suspicious-lookalikes
+      type: named_feed
+    - name: threat insight - data exfiltration
+      type: custom_list
     - name: ext-ransomware
       type: named_feed
-    - name: surbl-lite
+    - name: nccic-host
       type: named_feed
-    - name: multi-domain.surbl
+    - name: sanctions-med
+      type: named_feed
+    - name: noed
+      type: named_feed
+    - name: sanctions-high
       type: named_feed
     - name: cryptocurrency
       type: named_feed
-    - name: public-doh
+    - name: multi-domain.surbl
       type: named_feed
-    - name: fresh-domain.surbl
+    - name: suspicious-noed
       type: named_feed
     - name: farsightnod
       type: named_feed
-    - name: Threat Insight - Data Exfiltration
-      type: custom_list
-    - name: Threat Insight - DGA
-      type: custom_list
-    - name: Threat Insight - DNS Messenger
-      type: custom_list
-    - name: antimalware-ip
+    - name: fresh-domain.surbl
       type: named_feed
-    - name: exploitkit-ip
-      type: named_feed
-    - name: ext-tor-exit-node-ip
-      type: named_feed
+    - name: threat insight - dga
+      type: custom_list
+    - name: threat insight - dns messenger
+      type: custom_list
     - name: ext-antimalware-ip
       type: named_feed
-    - name: ext-exploitkit-ip
+    - name: sanctions-ip
       type: named_feed
-    - name: bot-ip
+    - name: public-doh
+      type: named_feed
+    - name: antimalware-ip
+      type: named_feed
+    - name: nccic-ip
+      type: named_feed
+    - name: tor-exit-node-ip
+      type: named_feed
+    - name: eecn-ip
+      type: named_feed
+    - name: etiqrisk-ip
       type: named_feed
     - name: bogon
       type: named_feed
-    # - name: pubic-doh-ip
-      # type: named_feed
+    #- name: public-doh-ip
+    #  type: named_feed
+

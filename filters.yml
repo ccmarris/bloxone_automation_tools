@@ -49,22 +49,38 @@ application_filters:
 # Infoblox Web Categories 
 # Allowed Actions: action_block, action_redirect, action_log, action_allow 
 category_filters:
-  - name: risk_fraud_crime
-    description: Risk, fraud and crime web categories
+  - name: malicious-cat
+    description: Malicous Web Categories
     categories:
-    - Browser Exploits
-    - Consumer Protection
-    - Illegal UK
-    - Malicious Downloads
-    - Malicious Sites
-    - Phishing
+    - Ad Fraud
+    - Botnet
+    - Command and Control Centers
+    - Compromised & Links To Malware
+    - Malware Call-Home
+    - Phishing/Fraud
+    - Spam URLs
+    - Cryptocurrency Mining
+    - Spyware & Questionable Software
+    action: action_block
+
+  - name: crime-cat
+    description: Crime web categories
+    categories:
+    - Child Abuse Images
+    - Criminal Skills
+    - Terrorism
+    - Illegal Drugs
     action: action_block
   
-  - name: undesireable
+  - name: undesireable-cat
     description: Web categories that may be undesiralbe
     categories:
     - Alcohol
     - Drugs
     - Pornography
     - Gambling
+    - Child Inappropriate
+    - Lingerie, Suggestive & Pinup
+    - Nudity
+    - Sex & Erotic
     action: action_block
