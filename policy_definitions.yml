@@ -26,11 +26,11 @@ policy_high:
       type: named_feed
     - name: sanctions-high
       type: named_feed
-    - name: threat insight - data exfiltration
+    - name: Threat Insight - Data Exfiltration
       type: custom_list
-    - name: threat insight - dga
+    - name: Threat Insight - DGA
       type: custom_list
-    - name: threat insight - dns messenger
+    - name: Threat Insight - DNS Messenger
       type: custom_list
     - name: antimalware-ip
       type: named_feed
@@ -90,11 +90,11 @@ policy_medium:
       type: named_feed
     - name: sanctions-high
       type: named_feed
-    - name: threat insight - data exfiltration
+    - name: Threat Insight - Data Exfiltration
       type: custom_list
-    - name: threat insight - dga
+    - name: Threat Insight - DGA
       type: custom_list
-    - name: threat insight - dns messenger
+    - name: Threat Insight - DNS Messenger
       type: custom_list
     - name: antimalware-ip
       type: named_feed
@@ -154,7 +154,7 @@ policy_low:
       type: named_feed
     - name: suspicious-lookalikes
       type: named_feed
-    - name: threat insight - data exfiltration
+    - name: Threat Insight - Data Exfiltration
       type: custom_list
 
 
@@ -179,9 +179,9 @@ policy_low:
       type: named_feed
     - name: fresh-domain.surbl
       type: named_feed
-    - name: threat insight - dga
+    - name: Threat Insight - DGA
       type: custom_list
-    - name: threat insight - dns messenger
+    - name: Threat Insight - DNS Messenger
       type: custom_list
     - name: ext-antimalware-ip
       type: named_feed
@@ -222,7 +222,7 @@ policy_logonly:
       type: named_feed
     - name: suspicious-lookalikes
       type: named_feed
-    - name: threat insight - data exfiltration
+    - name: Threat Insight - Data Exfiltration
       type: custom_list
     - name: ext-ransomware
       type: named_feed
@@ -244,9 +244,9 @@ policy_logonly:
       type: named_feed
     - name: fresh-domain.surbl
       type: named_feed
-    - name: threat insight - dga
+    - name: Threat Insight - DGA
       type: custom_list
-    - name: threat insight - dns messenger
+    - name: Threat Insight - DNS Messenger
       type: custom_list
     - name: ext-antimalware-ip
       type: named_feed

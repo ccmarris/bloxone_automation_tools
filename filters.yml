@@ -29,7 +29,6 @@ application_filters:
     - Allway Sync
     - ADrive
     - Filestack
-    - MediaFire
     action: action_log
 
 # Examples:
@@ -75,8 +74,6 @@ category_filters:
   - name: undesireable-cat
     description: Web categories that may be undesiralbe
     categories:
-    - Alcohol
-    - Drugs
     - Pornography
     - Gambling
     - Child Inappropriate
