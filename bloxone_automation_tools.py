@@ -11,11 +11,11 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20221018
+ Date Last Updated: 20230509
 
  Todo:
 
- Copyright (c) 2021 Chris Marrison / Infoblox
+ Copyright (c) 2021 - 2023 Chris Marrison / Infoblox
 
  Redistribution and use in source and binary forms,
  with or without modification, are permitted provided
@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.6.6'
+__version__ = '0.7.1'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -180,9 +180,10 @@ def read_demo_ini(ini_filename, app=''):
                      'no_of_networks', 'no_of_ips', 'container_cidr', 
                      'cidr', 'net_comments', 'ipv6_prefix' ]
     elif app == 'b1td':
-        ini_keys = [ 'b1inifile', 'owner', 'location', 'customer', 'prefix',
-                     'postfix', 'policy_level', 'policy', 'allow_list', 
-                     'deny_list', 'ext_net', 'ext_cidr', 'ext_net_name' ]
+        ini_keys = [ 'b1inifile', 'owner', 'location', 'customer', 
+                     'customer_domain', 'prefix', 'postfix', 
+                     'policy_level', 'policy', 'allow_list', 'deny_list', 
+                     'ext_net', 'ext_cidr', 'ext_net_name' ]
     else:
         log.error(f'App: {app} not supported.')
         ini_keys = None
@@ -1740,12 +1741,148 @@ def delete_application_filters(b1tdc, config={}):
     return status
 
 
-def create_b1td_pov(b1tdc, config):
+def add_lookalike_targets(b1tdlad, domain):
+    '''
+    '''
+    status = False
+
+    response = b1tdlad.get('/lookalike_targets')
+    if response.status_code in b1tdlad.return_codes_ok:
+        results = response.json().get('results')
+        if not domain in results.get('items'):
+            # Add domain to items
+            items_described = results.get('items_described') item = { "item": domain, 
+                     "description": "Added by bloxone_automation_tools" }
+            items_described.append(item)
+            response = b1tdlad.update(json.dumps(items_described))
+            if response.status_code in b1tdlad.return_codes_ok:
+                log.info(f'+++ Domain {domain} added to lookalike targets')
+                status = True
+            else:
+                log.info(f'--- Failed to add {domain} to lookalike targets')
+                log.debug(f'Return code: {response.status_code}')
+                log.debug(f'Return body: {response.text}')
+        else:
+            log.info(f'+++ Domain {domain} already listed')
+    else:
+        log.info(f'--- Failed to retrieve lookalike_targets')
+        log.debug(f'Return code: {response.status_code}')
+        log.debug(f'Return body: {response.text}')
+
+    return status
+
+
+def create_lookalike(b1ini, domain):
+    '''
+    '''
+    status = False
+
+    # Instatiate bloxone 
+    b1tdlad = bloxone.b1tdlad(b1ini)
+
+    log.info('=== Attempting to add lookalike target')
+    if bloxone.utils.count_labels(domain) > 1:
+        labels = domain.split('.')
+        if len(labels[0]) > 4:
+            # Try and add domain
+            if add_lookalike_targets(b1tdlad, domain):
+                status = True
+        else:
+            log.info('--- customer domain label too small (must be >4 characters)')
+    else:
+        log.info('--- Customer domain must contain a minimum of two labels')
+    
+    return status
+
+
+def remove_lookalike_target(b1tdlad, domain):
+    '''
+    '''
+    status = False
+    found = False
+    items_described = []
+    new_items_desc = []
+
+	# Get lookalike_targets
+    response = b1tdlad.get('/lookalike_targets')
+    if response.status_code in b1tdlad.return_codes_ok:
+        results = response.json().get('results')
+        if domain in results.get('items'):
+            log.info('+++ domain found')
+            items_described = results.get('items_described')
+            for item in items_described:
+                if item.get('item') == domain:
+                    # Check description to ensure it was added by this
+                    if 'bloxone_automation_tools' in item.get('description'):
+                        log.info(f'+++ Lookalike target {domain} found')
+                        found = True
+                    else:
+                        log.info(f'--- Lookalike target {domain} not added by this script')
+                        items_described.append(item)
+                else:
+                    items_described.append(item)
+
+            # Remove domain 
+            if found:
+                response = b1tdlad.update(json.dumps(items_described))
+                if response.status_code in b1tdlad.return_codes_ok:
+                    log.info(f'+++ Lookalike {domain} removed from lookalike targets')
+                    status = True
+                else:
+                    log.info(f'--- Failed to remove {domain} from lookalike targets')
+                    log.debug(f'Return code: {response.status_code}')
+                    log.debug(f'Return body: {response.text}')
+
+            else:
+                log.info(f'--- Removal not attempted')
+
+        else:
+            log.info(f'--- Domain {domain} not found in lookalike targets')
+            log.info(f'--- Removal not attempted')
+
+    else:
+        log.info(f'--- Failed to get lookalikes')
+        log.debug(f'Return code: {response.status_code}')
+        log.debug(f'Return body: {response.text}')
+
+    return status
+
+
+def remove_lookalike(b1ini, domain):
+    '''
+    '''
+    status = False
+
+    # Instatiate bloxone 
+    b1tdlad = bloxone.b1tdlad(b1ini)
+
+    log.info('=== Attempting to remove lookalike target')
+    if bloxone.utils.count_labels(domain) > 1:
+        labels = domain.split('.')
+        if len(labels[0]) > 4:
+            # Try and add domain
+            if remove_lookalike_target(b1tdlad, domain):
+                log.info('+++ Lookalike target removed successfully')
+                status = True
+        else:
+            log.info('--- customer domain label too small (must be >4 characters)')
+            log.info(f'--- Removal not attempted')
+    else:
+        log.info('--- Customer domain must contain a minimum of two labels')
+        log.info(f'--- Removal not attempted')
+    
+    return status
+
+
+def create_b1td_pov(b1ini, config):
     '''
     '''
     status = False
     ids = {}
     custom_lists = {}
+
+    # Instatiate bloxone 
+    b1tdc = bloxone.b1tdc(b1ini)
 
     # Create External Network
     ids['net_id'] = create_network_list(b1tdc, config=config)
@@ -1764,14 +1901,30 @@ def create_b1td_pov(b1tdc, config):
 
             # Create Security Policy
             create_policy(b1tdc, config=config, ids=ids)
+        
+        # Create lookalike entry
+        customer_domain = config.get('customer_domain')
+        if customer_domain:
+            host_regex, url_regex = bloxone.utils.buildregex()
+            valid_host = bloxone.utils.validate_fqdn(hostname=customer_domain, 
+                                        regex=host_regex)
+            if valid_host:
+                create_lookalike(b1ini, config.get('customer_domain'))
+            else:
+                logging.info('--- Customer domain for lookalikes not valid')
+        else:
+            logging.info('--- customer_domain not defined for lookalikes')
 
     return status
 
 
-def b1td_clean_up(b1tdc, config):
+def b1td_clean_up(b1ini, config):
     '''
     '''
     status = False
+
+    # Instatiate bloxone 
+    b1tdc = bloxone.b1tdc(b1ini)
 
     # Delete External Network
     status = delete_policy(b1tdc, config=config)
@@ -1779,6 +1932,19 @@ def b1td_clean_up(b1tdc, config):
     status = delete_custom_lists(b1tdc, config=config)
     status - delete_content_filters(b1tdc, config=config)
     status - delete_application_filters(b1tdc, config=config)
+
+    # Cleanup lookalike entry
+    customer_domain = config.get('customer_domain')
+    if customer_domain:
+        host_regex, url_regex = bloxone.utils.buildregex()
+        valid_host = bloxone.utils.validate_fqdn(hostname=customer_domain, 
+                                    regex=host_regex)
+        if valid_host:
+            status = remove_lookalike(b1ini, config.get('customer_domain'))
+        else:
+            logging.info('--- Customer domain for lookalikes not valid')
+    else:
+        logging.info('--- customer_domain not defined for lookalikes')
 
     return status
 
@@ -1789,8 +1955,6 @@ def b1td_pov(b1ini, config={}, remove=False):
     status = True
     log.info(f"====== B1TD PoV Automation Version {__version__} ======")
 
-    # Instatiate bloxone 
-    b1tdc = bloxone.b1tdc(b1ini)
 
     if not remove:
         # log.info("Checking config...")
@@ -1798,7 +1962,7 @@ def b1td_pov(b1ini, config={}, remove=False):
             # log.info("Config checked out proceeding...")
         log.info("------ Creating PoV Environment ------")
         start_timer = time.perf_counter()
-        status = create_b1td_pov(b1tdc, config)
+        status = create_b1td_pov(b1ini, config)
         end_timer = time.perf_counter() - start_timer
         log.info("---------------------------------------------------")
         log.info(f'B1TD PoV environment data created in {end_timer:0.2f}S')
@@ -1811,7 +1975,7 @@ def b1td_pov(b1ini, config={}, remove=False):
     elif remove:
         log.info("------ Cleaning Up B1TD PoV Environment ------")
         start_timer = time.perf_counter()
-        status = b1td_clean_up(b1tdc, config)
+        status = b1td_clean_up(b1ini, config)
         end_timer = time.perf_counter() - start_timer
         log.info("---------------------------------------------------")
         log.info(f'B1TD Environment removed in {end_timer:0.2f}S')

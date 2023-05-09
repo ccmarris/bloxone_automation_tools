@@ -2,7 +2,7 @@
 BloxOne Automation Tools
 ========================
 
-| Version: 0.6.4
+| Version: 0.7.0
 | Author: Chris Marrison
 | Email: chris@infoblox.com
 
@@ -72,7 +72,7 @@ Modules
 
 Non-standard modules:
 
-    - bloxone 0.8.5+
+    - bloxone 0.9.0+
     - PyYAML
 
 These are specified in the *requirements.txt* file.
@@ -192,6 +192,7 @@ The format of the demo ini file is::
     ipv6_prefix = "2001:db8::"
 
     # B1TD POV 
+    customer_domain = <customer domain for lookalikes>
     policy_level = medium
     policy = %(prefix)s-policy
     allow_list = %(prefix)s-allow
@@ -202,11 +203,13 @@ The format of the demo ini file is::
     ext_net_name = %(customer)s-network
 
 
-The *demo.ini* file uses a single section, however, you can consider the keys 
-and *customer*. Most of the remaining keys are automatically created from the
-*custom* key, but can be overridden as needed. The exception being the *ext_net*
-key used for BloxOne Threat Defense. This has to be globally unique across the
-BloxOne Threat Defense Platform.
+The *demo.ini* file uses a single section, however, it is broken down using 
+comments in to several sections. You should configure the *owner*, *location*,
+and *customer* keys appropriately. Most of the remaining keys are 
+automatically created from the *customer* key, but can be overridden as needed. 
+
+The exception being the *ext_net* key used for BloxOne Threat Defense. This 
+has to be globally unique across the BloxOne Threat Defense Platform.
 
 Only the common keys and app specific keys are required to execute the script
 for a particular BloxOne App. 
@@ -262,6 +265,15 @@ For BloxOne Threat Defense you can customise the names used to generate the
 network and custom (named) lists, as well as the policy name. In this case,
 the external network or IP must be specified using the *ext_net* key and where
 appropriate the *ext_cidr* key.
+
+The *customer_domain* key is not required, but if defined will be used to
+add a lookalike target to the configuration.
+
+.. note::
+
+    The customer domain must consist of two labels and the left most 
+    label must be 5 or more characters. e.g. 12345.com
+
 
 The *policy_level* key is used to specify the acceptable risk level of the 
 customer and controls the threat feeds used to create the policy rules within
