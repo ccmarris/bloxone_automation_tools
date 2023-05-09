@@ -364,7 +364,7 @@ ul.auto-toc {
 <h1 class="title">BloxOne Automation Tools</h1>
 
 <div class="line-block">
-<div class="line">Version: 0.6.4</div>
+<div class="line">Version: 0.7.1</div>
 <div class="line">Author: Chris Marrison</div>
 <div class="line">Email: <a class="reference external" href="mailto:chris&#64;infoblox.com">chris&#64;infoblox.com</a></div>
 </div>
@@ -424,7 +424,7 @@ Python added to your PATH if the installer offers such an option
 <p>Non-standard modules:</p>
 <blockquote>
 <ul class="simple">
-<li>bloxone 0.8.5+</li>
+<li>bloxone 0.9.0+</li>
 <li>PyYAML</li>
 </ul>
 </blockquote>
@@ -532,6 +532,7 @@ net_comments = Office Network, VoIP Network, POS Network, Guest WiFI, IoT Networ
 ipv6_prefix = &quot;2001:db8::&quot;
 
 # B1TD POV
+customer_domain = &lt;customer domain for lookalikes&gt;
 policy_level = medium
 policy = %(prefix)s-policy
 allow_list = %(prefix)s-allow
@@ -541,11 +542,12 @@ ext_net = x.x.x.x
 ext_cidr = 32
 ext_net_name = %(customer)s-network
 </pre>
-<p>The <em>demo.ini</em> file uses a single section, however, you can consider the keys
-and <em>customer</em>. Most of the remaining keys are automatically created from the
-<em>custom</em> key, but can be overridden as needed. The exception being the <em>ext_net</em>
-key used for BloxOne Threat Defense. This has to be globally unique across the
-BloxOne Threat Defense Platform.</p>
+<p>The <em>demo.ini</em> file uses a single section, however, it is broken down using
+comments in to several sections. You should configure the <em>owner</em>, <em>location</em>,
+and <em>customer</em> keys appropriately. Most of the remaining keys are
+automatically created from the <em>customer</em> key, but can be overridden as needed.</p>
+<p>The exception being the <em>ext_net</em> key used for BloxOne Threat Defense. This
+has to be globally unique across the BloxOne Threat Defense Platform.</p>
 <p>Only the common keys and app specific keys are required to execute the script
 for a particular BloxOne App.</p>
 <div class="admonition note">
@@ -593,6 +595,13 @@ Please create your own and customise your inifile appropriately.</p>
 network and custom (named) lists, as well as the policy name. In this case,
 the external network or IP must be specified using the <em>ext_net</em> key and where
 appropriate the <em>ext_cidr</em> key.</p>
+<p>The <em>customer_domain</em> key is not required, but if defined will be used to
+add a lookalike target to the configuration.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The customer domain must consist of two labels and the left most
+label must be 5 or more characters. e.g. 12345.com</p>
+</div>
 <p>The <em>policy_level</em> key is used to specify the acceptable risk level of the
 customer and controls the threat feeds used to create the policy rules within
 the security policy. The policy levels, high, medium, low and logonly are

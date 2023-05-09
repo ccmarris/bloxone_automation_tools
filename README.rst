@@ -2,7 +2,7 @@
 BloxOne Automation Tools
 ========================
 
-| Version: 0.7.0
+| Version: 0.7.1
 | Author: Chris Marrison
 | Email: chris@infoblox.com
 
