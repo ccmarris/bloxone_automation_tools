@@ -11,7 +11,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20230509
+ Date Last Updated: 20230522
 
  Todo:
 
@@ -42,7 +42,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 
 '''
-__version__ = '0.7.1'
+__version__ = '0.7.2'
 __author__ = 'Chris Marrison'
 __author_email__ = 'chris@infoblox.com'
 
@@ -1751,7 +1751,8 @@ def add_lookalike_targets(b1tdlad, domain):
         results = response.json().get('results')
         if not domain in results.get('items'):
             # Add domain to items
-            items_described = results.get('items_described') item = { "item": domain, 
+            items_described = results.get('items_described') 
+            item = { "item": domain, 
                      "description": "Added by bloxone_automation_tools" }
             items_described.append(item)
             response = b1tdlad.update(json.dumps(items_described))
