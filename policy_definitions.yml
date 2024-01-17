@@ -6,13 +6,9 @@ policy_high:
       type: named_feed
     - name: antimalware
       type: named_feed
-    - name: ext-base-antimalware
-      type: named_feed
     - name: ransomware
       type: named_feed
     - name: malware-dga
-      type: named_feed
-    - name: etiqrisk
       type: named_feed
     - name: multi-domain.surbl
       type: named_feed
@@ -34,13 +30,11 @@ policy_high:
       type: custom_list
     - name: antimalware-ip
       type: named_feed
-    - name: nccic-ip
-      type: named_feed
+    # - name: nccic-ip
+    #   type: named_feed
     - name: tor-exit-node-ip
       type: named_feed
     - name: eecn-ip
-      type: named_feed
-    - name: etiqrisk-ip
       type: named_feed
     - name: bogon
       type: named_feed
@@ -49,16 +43,12 @@ policy_high:
   action_log:
     - name: ext-ransomware
       type: named_feed
-    - name: nccic-host
-      type: named_feed
-    - name: sanctions-med
-      type: named_feed
     - name: noed
       type: named_feed
-    - name: farsightnod
-      type: named_feed
-    - name: fresh-domain.surbl
-      type: named_feed
+    # - name: nccic-host
+    #   type: named_feed
+    # - name: farsightnod
+    #   type: named_feed
     - name: ext-antimalware-ip
       type: named_feed
     - name: sanctions-ip
@@ -74,13 +64,9 @@ policy_medium:
       type: named_feed
     - name: antimalware
       type: named_feed
-    - name: ext-base-antimalware
-      type: named_feed
     - name: ransomware
       type: named_feed
     - name: malware-dga
-      type: named_feed
-    - name: etiqrisk
       type: named_feed
     - name: suspicious
       type: named_feed
@@ -101,35 +87,27 @@ policy_medium:
 
 
   action_log:
-    - name: ext-ransomware
-      type: named_feed
-    - name: nccic-host
-      type: named_feed
     - name: sanctions-med
       type: named_feed
     - name: noed
       type: named_feed
-    - name: farsightnod
-      type: named_feed
+    # - name: farsightnod
+    #   type: named_feed
     - name: cryptocurrency
       type: named_feed
     - name: multi-domain.surbl
       type: named_feed
     - name: fresh-domain.surbl
       type: named_feed
-    - name: ext-antimalware-ip
-      type: named_feed
     - name: sanctions-ip
       type: named_feed
     - name: public-doh
       type: named_feed
-    - name: nccic-ip
-      type: named_feed
+    # - name: nccic-ip
+    #   type: named_feed
     - name: tor-exit-node-ip
       type: named_feed
     - name: eecn-ip
-      type: named_feed
-    - name: etiqrisk-ip
       type: named_feed
     - name: bogon
       type: named_feed
@@ -148,8 +126,6 @@ policy_low:
       type: named_feed
     - name: malware-dga
       type: named_feed
-    - name: etiqrisk
-      type: named_feed
     - name: suspicious
       type: named_feed
     - name: suspicious-lookalikes
@@ -161,8 +137,8 @@ policy_low:
   action_log:
     - name: ext-ransomware
       type: named_feed
-    - name: nccic-host
-      type: named_feed
+    # - name: nccic-host
+    #   type: named_feed
     - name: sanctions-med
       type: named_feed
     - name: noed
@@ -175,8 +151,8 @@ policy_low:
       type: named_feed
     - name: suspicious-noed
       type: named_feed
-    - name: farsightnod
-      type: named_feed
+    # - name: farsightnod
+    #   type: named_feed
     - name: fresh-domain.surbl
       type: named_feed
     - name: Threat Insight - DGA
@@ -191,13 +167,11 @@ policy_low:
       type: named_feed
     - name: antimalware-ip
       type: named_feed
-    - name: nccic-ip
-      type: named_feed
+    # - name: nccic-ip
+    #   type: named_feed
     - name: tor-exit-node-ip
       type: named_feed
     - name: eecn-ip
-      type: named_feed
-    - name: etiqrisk-ip
       type: named_feed
     - name: bogon
       type: named_feed
@@ -216,8 +190,8 @@ policy_logonly:
       type: named_feed
     - name: malware-dga
       type: named_feed
-    - name: etiqrisk
-      type: named_feed
+    # - name: etiqrisk
+    #   type: named_feed
     - name: suspicious
       type: named_feed
     - name: suspicious-lookalikes
@@ -226,8 +200,8 @@ policy_logonly:
       type: custom_list
     - name: ext-ransomware
       type: named_feed
-    - name: nccic-host
-      type: named_feed
+    # - name: nccic-host
+    #   type: named_feed
     - name: sanctions-med
       type: named_feed
     - name: noed
@@ -240,8 +214,8 @@ policy_logonly:
       type: named_feed
     - name: suspicious-noed
       type: named_feed
-    - name: farsightnod
-      type: named_feed
+    # - name: farsightnod
+    #   type: named_feed
     - name: fresh-domain.surbl
       type: named_feed
     - name: Threat Insight - DGA
@@ -256,13 +230,11 @@ policy_logonly:
       type: named_feed
     - name: antimalware-ip
       type: named_feed
-    - name: nccic-ip
-      type: named_feed
+    # - name: nccic-ip
+    #   type: named_feed
     - name: tor-exit-node-ip
       type: named_feed
     - name: eecn-ip
-      type: named_feed
-    - name: etiqrisk-ip
       type: named_feed
     - name: bogon
       type: named_feed
